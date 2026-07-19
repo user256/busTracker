@@ -14,6 +14,8 @@ export function buildDummyBasemapStyle(): StyleSpecification {
       "bustracker:note":
         "Demo raster basemap (Carto Positron). Replace with Stadia when STADIA_API_KEY is set.",
     },
+    // Free MapLibre demo glyphs so symbol/text layers (vehicles) still render.
+    glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
     sources: {
       "dummy-raster": {
         type: "raster",

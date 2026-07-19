@@ -6,6 +6,7 @@ import { LiveBadge, type LiveBadgeState } from "./LiveBadge";
 import { MapControls } from "./MapControls";
 import { MapProvider, useMapSetter } from "./MapContext";
 import { RouteNetwork } from "./RouteNetwork";
+import { VehicleMarkers } from "./VehicleMarkers";
 import { SLOT_LAYER_IDS, SLOT_SOURCE_PREFIX } from "./layerOrder";
 import {
   DUMMY_BASEMAP_ATTRIBUTION,
@@ -86,6 +87,8 @@ function MapShellInner({
               });
             }
             if (!map.getLayer(id)) {
+              // VehicleMarkers owns the symbol layer for vehicles-marker.
+              if (id === "vehicles-marker") continue;
               if (id.includes("line")) {
                 map.addLayer({
                   id,
@@ -166,6 +169,7 @@ function MapShellInner({
         <MapControls />
       </div>
       <RouteNetwork />
+      <VehicleMarkers />
       <div className={styles.attribution}>
         {basemap === "dummy"
           ? DUMMY_BASEMAP_ATTRIBUTION

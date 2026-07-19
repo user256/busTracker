@@ -84,6 +84,7 @@ export async function GET(req: NextRequest) {
   const rows = await query<{
     vehicle_id: string;
     route_id: string | null;
+    route_short_name: string | null;
     trip_id: string | null;
     lat: number;
     lon: number;
@@ -95,13 +96,15 @@ export async function GET(req: NextRequest) {
     trip_headsign: string | null;
   }>(
     `SELECT
-       s.vehicle_id, s.route_id, s.trip_id,
+       s.vehicle_id, s.route_id, r.route_short_name, s.trip_id,
        ST_Y(s.geom::geometry) AS lat, ST_X(s.geom::geometry) AS lon,
        s.bearing, s.speed_mps, s.occupancy_status, s.observed_at, s.quality_flags,
        tr.trip_headsign
      FROM vehicle_positions_servable s
      LEFT JOIN trips tr
        ON tr.feed_version_id = $5 AND tr.trip_id = s.trip_id
+     LEFT JOIN routes r
+       ON r.feed_version_id = $5 AND r.route_id = s.route_id
      WHERE s.feed_name = $1
        AND ($2::text IS NULL OR s.route_id = $2)
        AND (
@@ -128,6 +131,7 @@ export async function GET(req: NextRequest) {
     return {
       vehicle_id: r.vehicle_id,
       route_id: r.route_id,
+      route_short_name: r.route_short_name,
       trip_id: r.trip_id,
       // Rounded to 5 dp (~1 m) — deliberate payload/privacy choice, not a precision bug.
       lat: Number(Number(r.lat).toFixed(5)),
