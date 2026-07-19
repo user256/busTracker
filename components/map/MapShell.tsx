@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapLibreMap, StyleSpecification } from "maplibre-gl";
-import { LiveBadge, type LiveBadgeState } from "./LiveBadge";
+import { LiveBadge } from "./LiveBadge";
+import { LastUpdated } from "./LastUpdated";
+import { FreshnessBanner } from "./FreshnessBanner";
 import { MapControls } from "./MapControls";
-import { MapProvider, useMapSetter } from "./MapContext";
+import { MapProvider, useFreshnessContext, useMapSetter } from "./MapContext";
 import { RouteNetwork } from "./RouteNetwork";
 import { StopInteraction } from "./StopInteraction";
 import { StopDeparturesPanel } from "./StopDeparturesPanel";
@@ -21,8 +23,6 @@ export type MapShellProps = {
   /** Initial center [lng, lat]. Default: Kinross area (dummy feed). */
   center?: [number, number];
   zoom?: number;
-  /** Honesty badge; wire to feed health in Ticket 206. */
-  liveState?: LiveBadgeState;
   className?: string;
 };
 
@@ -32,8 +32,9 @@ const DEFAULT_ZOOM = 10;
 function MapShellInner({
   center = DEFAULT_CENTER,
   zoom = DEFAULT_ZOOM,
-  liveState = "live",
 }: MapShellProps) {
+  const { freshness } = useFreshnessContext();
+  const liveState = freshness?.state ?? "offline";
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const setMap = useMapSetter();
@@ -162,6 +163,8 @@ function MapShellInner({
       ) : null}
       <div className={styles.topLeft}>
         <LiveBadge state={liveState} />
+        <LastUpdated />
+        <FreshnessBanner />
         {basemap === "dummy" ? (
           <div className={styles.demoNote} role="status">
             Demo basemap — awaiting Stadia key

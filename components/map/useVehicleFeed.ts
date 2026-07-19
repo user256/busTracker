@@ -14,6 +14,8 @@ export type VehicleFeedResponse = {
 export type VehicleFeedHookState = {
   vehicles: FeedVehicle[];
   feedStatus: "live" | "degraded" | "down" | null;
+  /** Server envelope timestamp — preserved through poll failures (Ticket 206). */
+  generatedAt: string | null;
   error: string | null;
   consecutiveFailures: number;
   lastSuccessAt: number | null;
@@ -44,6 +46,7 @@ export function useVehicleFeed(options: Options): VehicleFeedHookState {
   const [state, setState] = useState<VehicleFeedHookState>({
     vehicles: [],
     feedStatus: null,
+    generatedAt: null,
     error: null,
     consecutiveFailures: 0,
     lastSuccessAt: null,
@@ -97,7 +100,8 @@ export function useVehicleFeed(options: Options): VehicleFeedHookState {
           polling: false,
           error: null,
           consecutiveFailures: 0,
-          // Keep vehicles + lastSuccessAt — avoid resetting mid-tween.
+          lastSuccessAt: Date.now(),
+          // Keep vehicles, generatedAt, lastSuccessAt — avoid resetting mid-tween.
         }));
         return;
       }
@@ -111,14 +115,15 @@ export function useVehicleFeed(options: Options): VehicleFeedHookState {
 
       const body = (await res.json()) as VehicleFeedResponse;
       failuresRef.current = 0;
-      setState({
+      setState((s) => ({
         vehicles: body.vehicles ?? [],
         feedStatus: body.feed_status,
+        generatedAt: body.generated_at ?? s.generatedAt,
         error: null,
         consecutiveFailures: 0,
         lastSuccessAt: Date.now(),
         polling: false,
-      });
+      }));
     } catch (err) {
       failuresRef.current += 1;
       setState((s) => ({
@@ -126,6 +131,7 @@ export function useVehicleFeed(options: Options): VehicleFeedHookState {
         polling: false,
         error: err instanceof Error ? err.message : String(err),
         consecutiveFailures: failuresRef.current,
+        // Preserve vehicles + generatedAt so "last updated" keeps counting.
       }));
     }
   }, [enabled]);

@@ -121,7 +121,7 @@ Open work that must complete before Stage C public tracker beta:
 - [x] [Ticket 203: Live Vehicle Markers and Refresh Loop](./203-live-vehicle-markers.md)
 - [x] [Ticket 204: Vehicle Detail Panel](./204-vehicle-detail-panel.md)
 - [x] [Ticket 205: Stop Markers and Live Departures](./205-stop-markers-departures.md)
-- [ ] [Ticket 206: Data Freshness and Degraded-State UI](./206-freshness-degraded-ui.md)
+- [x] [Ticket 206: Data Freshness and Degraded-State UI](./206-freshness-degraded-ui.md)
 - [ ] [Ticket 207: Shareable Tracking Links](./207-shareable-links.md)
 - [ ] [Ticket 208: Mobile and Accessibility Pass](./208-mobile-accessibility.md)
 - [ ] [Ticket 299: Sprint 2 Review and Go/No-Go](./299-sprint-2-review.md)

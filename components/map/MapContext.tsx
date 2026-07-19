@@ -10,6 +10,7 @@ import {
 } from "react";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import type { FeedVehicle } from "@/lib/map/vehicleTween";
+import type { FreshnessResult } from "@/lib/freshness";
 
 export type SelectedStop = {
   id: string;
@@ -31,6 +32,11 @@ type MapContextValue = {
   bumpFeedTick: () => void;
   feedVehicles: FeedVehicle[];
   setFeedVehicles: (vehicles: FeedVehicle[]) => void;
+  /** Ticket 206 freshness snapshot for chrome + markers. */
+  freshness: FreshnessResult | null;
+  setFreshness: (result: FreshnessResult | null) => void;
+  bannerDismissed: boolean;
+  setBannerDismissed: (dismissed: boolean) => void;
 };
 
 const MapContext = createContext<MapContextValue | null>(null);
@@ -56,6 +62,8 @@ export function MapProvider({ children }: { children: ReactNode }) {
   );
   const [feedTick, setFeedTick] = useState(0);
   const [feedVehicles, setFeedVehicles] = useState<FeedVehicle[]>([]);
+  const [freshness, setFreshnessState] = useState<FreshnessResult | null>(null);
+  const [bannerDismissed, setBannerDismissedState] = useState(false);
 
   const setMap = useCallback((m: MapLibreMap | null) => setMapState(m), []);
   const clearSelectedStop = useCallback(() => setSelectedStopState(null), []);
@@ -72,6 +80,12 @@ export function MapProvider({ children }: { children: ReactNode }) {
     if (id) setSelectedStopState(null);
   }, []);
   const bumpFeedTick = useCallback(() => setFeedTick((n) => n + 1), []);
+  const setFreshness = useCallback((result: FreshnessResult | null) => {
+    setFreshnessState(result);
+  }, []);
+  const setBannerDismissed = useCallback((dismissed: boolean) => {
+    setBannerDismissedState(dismissed);
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -86,6 +100,10 @@ export function MapProvider({ children }: { children: ReactNode }) {
       bumpFeedTick,
       feedVehicles,
       setFeedVehicles,
+      freshness,
+      setFreshness,
+      bannerDismissed,
+      setBannerDismissed,
     }),
     [
       map,
@@ -98,6 +116,11 @@ export function MapProvider({ children }: { children: ReactNode }) {
       feedTick,
       bumpFeedTick,
       feedVehicles,
+      setFeedVehicles,
+      freshness,
+      setFreshness,
+      bannerDismissed,
+      setBannerDismissed,
     ],
   );
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>;
@@ -153,5 +176,20 @@ export function useSelectedStop(): {
     selectedStop: ctx.selectedStop,
     setSelectedStop: ctx.setSelectedStop,
     clearSelectedStop: ctx.clearSelectedStop,
+  };
+}
+
+export function useFreshnessContext(): {
+  freshness: FreshnessResult | null;
+  setFreshness: (result: FreshnessResult | null) => void;
+  bannerDismissed: boolean;
+  setBannerDismissed: (dismissed: boolean) => void;
+} {
+  const ctx = useMapContext();
+  return {
+    freshness: ctx.freshness,
+    setFreshness: ctx.setFreshness,
+    bannerDismissed: ctx.bannerDismissed,
+    setBannerDismissed: ctx.setBannerDismissed,
   };
 }

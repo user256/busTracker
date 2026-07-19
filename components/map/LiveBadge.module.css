@@ -36,6 +36,14 @@
   background: #94a3b8;
 }
 
+.square {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 2px;
+  background: #cbd5e1;
+  flex-shrink: 0;
+}
+
 .offline .dot {
   background: #ef4444;
 }

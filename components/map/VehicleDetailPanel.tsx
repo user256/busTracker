@@ -5,6 +5,7 @@ import {
   useMapInstance,
   useSelectedVehicle,
   useVehicleFeedTick,
+  useFreshnessContext,
 } from "./MapContext";
 import styles from "./VehicleDetailPanel.module.css";
 
@@ -85,6 +86,7 @@ export function VehicleDetailPanel() {
   const map = useMapInstance();
   const { selectedVehicleId, setSelectedVehicleId } = useSelectedVehicle();
   const { feedTick, feedVehicles } = useVehicleFeedTick();
+  const { freshness } = useFreshnessContext();
   const [trip, setTrip] = useState<TripPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -183,7 +185,13 @@ export function VehicleDetailPanel() {
 
   if (!selectedVehicleId) return null;
 
-  const trackingLost = Boolean(trip && (!trip.tracking_live || !inFeed));
+  const trackingLost = Boolean(
+    trip &&
+      (freshness?.state === "offline" ||
+        freshness?.state === "timetable" ||
+        !trip.tracking_live ||
+        !inFeed),
+  );
   const nextStop = trip?.stops[0] ?? null;
   const isMobileDialog =
     typeof window !== "undefined" &&

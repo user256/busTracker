@@ -9,6 +9,7 @@ import {
   lerp,
   lerpBearing,
 } from "./geo";
+import { isVehicleDegraded } from "../freshness";
 
 export const POLL_INTERVAL_MS = 10_000;
 export const MAX_INTERP_METRES = 500;
@@ -27,6 +28,8 @@ export type FeedVehicle = {
   bearing: number | null;
   speed_mps: number | null;
   quality: string[];
+  /** Seconds since observed_at when the poll response was generated. */
+  age_seconds?: number;
 };
 
 export type VehicleTween = {
@@ -49,11 +52,9 @@ export type VehicleTween = {
 };
 
 export function isSuspectQuality(quality: string[]): boolean {
-  return quality.some(
-    (q) =>
-      q === "IMPLAUSIBLE_JUMP" ||
-      q === "IMPLAUSIBLE_SPEED" ||
-      q === "OFF_ROUTE",
+  return (
+    isVehicleDegraded(quality) ||
+    quality.some((q) => q === "IMPLAUSIBLE_JUMP")
   );
 }
 
@@ -80,9 +81,14 @@ export function applyFeedSnapshot(
   prev: Map<string, VehicleTween>,
   vehicles: FeedVehicle[],
   now: number,
-  opts: { reducedMotion: boolean; pollIntervalMs?: number },
+  opts: {
+    reducedMotion: boolean;
+    pollIntervalMs?: number;
+    allowInterpolation?: boolean;
+  },
 ): Map<string, VehicleTween> {
   const duration = opts.pollIntervalMs ?? POLL_INTERVAL_MS;
+  const allowInterpolation = opts.allowInterpolation ?? true;
   const next = new Map<string, VehicleTween>();
   const seen = new Set<string>();
 
@@ -98,6 +104,7 @@ export function applyFeedSnapshot(
     const suspect = isSuspectQuality(v.quality);
     const snap =
       opts.reducedMotion ||
+      !allowInterpolation ||
       !existing ||
       suspect ||
       dist > MAX_INTERP_METRES;

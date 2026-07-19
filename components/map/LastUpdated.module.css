@@ -1,0 +1,12 @@
+.line {
+  margin: 0;
+  padding: 0.28rem 0.55rem;
+  border-radius: 6px;
+  background: rgb(17 17 17 / 82%);
+  color: #f8fafc;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
