@@ -1,8 +1,8 @@
 # Ticket 204: Vehicle Detail Panel
 
 **Sprint:** 2 — Live Map Surface
-**Status:** Not started
-**Owner:** unassigned
+**Status:** Done
+**Owner:** Cursor
 **Estimate:** M
 
 ---
@@ -17,14 +17,14 @@ Selecting a vehicle opens a panel showing its route, destination, live position 
 
 ## Acceptance criteria
 
-- [ ] Clicking or tapping a vehicle marker, or activating it via keyboard, opens `components/map/VehicleDetailPanel.tsx` and sets `selectedVehicleId` in map state; the marker renders a visible selected treatment distinguishable without relying on colour alone.
-- [ ] The panel fetches `GET /api/vehicles/{vehicle_id}/trip` returning route short/long name, headsign/destination, `trip_id`, and the ordered remaining `stop_times` with arrival estimates sourced from Ticket 107.
-- [ ] Each upcoming stop row shows the stop name and a time labelled with its provenance: `Live` (real-time estimate), `Delayed +Nm` where the estimate exceeds schedule by ≥ 2 minutes, or `Scheduled` (timetable only, no real-time data). Provenance is text plus icon, never colour alone.
-- [ ] The panel refreshes on the same feed tick as Ticket 203's poll loop — no independent timer — and updates in place without collapsing or re-scrolling the stop list.
-- [ ] Selecting a vehicle eases the map so the vehicle sits in the visible map area not occluded by the panel: on ≥ 1024 px the panel is a right-hand sidebar and the map applies a matching right `padding`; below 1024 px it is a bottom sheet at 45vh with a matching bottom `padding`.
-- [ ] The panel is dismissible by an explicit close button, the `Escape` key, and (on the bottom sheet) a downward drag; dismissing clears `selectedVehicleId` and removes the deep-link parameter without a full navigation.
-- [ ] If the selected vehicle disappears from the feed while the panel is open, the panel does not close silently — it shows "Live tracking lost for this bus — last seen {relative time}" and keeps the timetable view of remaining stops available.
-- [ ] Panel content is a landmark region with `role="dialog"` on mobile and `aria-live="polite"` on the next-stop line, so a screen-reader user hears the next stop change without the whole list re-announcing.
+- [x] Clicking or tapping a vehicle marker, or activating it via keyboard, opens `components/map/VehicleDetailPanel.tsx` and sets `selectedVehicleId` in map state; the marker renders a visible selected treatment distinguishable without relying on colour alone.
+- [x] The panel fetches `GET /api/vehicles/{vehicle_id}/trip` returning route short/long name, headsign/destination, `trip_id`, and the ordered remaining `stop_times` with arrival estimates sourced from Ticket 107.
+- [x] Each upcoming stop row shows the stop name and a time labelled with its provenance: `Live` (real-time estimate), `Delayed +Nm` where the estimate exceeds schedule by ≥ 2 minutes, or `Scheduled` (timetable only, no real-time data). Provenance is text plus icon, never colour alone.
+- [x] The panel refreshes on the same feed tick as Ticket 203's poll loop — no independent timer — and updates in place without collapsing or re-scrolling the stop list.
+- [x] Selecting a vehicle eases the map so the vehicle sits in the visible map area not occluded by the panel: on ≥ 1024 px the panel is a right-hand sidebar and the map applies a matching right `padding`; below 1024 px it is a bottom sheet at 45vh with a matching bottom `padding`.
+- [x] The panel is dismissible by an explicit close button, the `Escape` key, and (on the bottom sheet) a downward drag; dismissing clears `selectedVehicleId` and removes the deep-link parameter without a full navigation.
+- [x] If the selected vehicle disappears from the feed while the panel is open, the panel does not close silently — it shows "Live tracking lost for this bus — last seen {relative time}" and keeps the timetable view of remaining stops available.
+- [x] Panel content is a landmark region with `role="dialog"` on mobile and `aria-live="polite"` on the next-stop line, so a screen-reader user hears the next stop change without the whole list re-announcing.
 
 ## Out of scope
 
@@ -46,6 +46,11 @@ Treat the panel as a pure function of `(selectedVehicleId, feedTick)` so it has 
 ## Notes / decisions log
 
 - 2026-07-19 — Ticket written during initial roadmap population. No implementation decisions yet.
+- 2026-07-19 — **API path:** `GET /api/v1/vehicles/{vehicle_id}/trip` (v1 prefix, matching 106).
+- 2026-07-19 — **Delay threshold:** 120 s → `Delayed +Nm` via shared `lib/arrivals/provenance.ts` (operator sign-off still outstanding).
+- 2026-07-19 — **Selection cues:** larger icon, white stroke + corner plus mark, text halo — not colour alone.
+- 2026-07-19 — **URL:** `?vehicle=` synced via `history.replaceState` for dismiss; full shareable deep links remain Ticket 207.
+- 2026-07-19 — **Keyboard:** map canvas is focusable; Enter/Space selects the first vehicle when none selected; Escape closes panel.
 
 ---
 

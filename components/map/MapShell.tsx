@@ -7,6 +7,7 @@ import { MapControls } from "./MapControls";
 import { MapProvider, useMapSetter } from "./MapContext";
 import { RouteNetwork } from "./RouteNetwork";
 import { VehicleMarkers } from "./VehicleMarkers";
+import { VehicleDetailPanel } from "./VehicleDetailPanel";
 import { SLOT_LAYER_IDS, SLOT_SOURCE_PREFIX } from "./layerOrder";
 import {
   DUMMY_BASEMAP_ATTRIBUTION,
@@ -170,6 +171,7 @@ function MapShellInner({
       </div>
       <RouteNetwork />
       <VehicleMarkers />
+      <VehicleDetailPanel />
       <div className={styles.attribution}>
         {basemap === "dummy"
           ? DUMMY_BASEMAP_ATTRIBUTION

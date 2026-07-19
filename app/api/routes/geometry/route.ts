@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { gzipSync } from "node:zlib";
 import { buildRouteNetworkGeometry } from "@/lib/map/routeGeometry";
-import { simplifyToleranceMetres } from "@/lib/map/routeColour";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -56,9 +55,4 @@ export async function GET(req: NextRequest) {
     const status = message.includes("No active GTFS") ? 503 : 500;
     return NextResponse.json({ error: message }, { status });
   }
-}
-
-/** Exported for tests — documents the ladder. */
-export function documentedTolerance(zoom: number): number {
-  return simplifyToleranceMetres(zoom);
 }

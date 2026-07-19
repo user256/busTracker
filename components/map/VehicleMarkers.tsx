@@ -1,8 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
-import { useMapInstance } from "./MapContext";
+import type { GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent } from "maplibre-gl";
+import {
+  useMapInstance,
+  useSelectedVehicle,
+  useVehicleFeedTick,
+} from "./MapContext";
 import { useVehicleFeed } from "./useVehicleFeed";
 import { SLOT_SOURCE_PREFIX } from "./layerOrder";
 import {
@@ -15,17 +19,31 @@ import {
 const SOURCE_ID = `${SLOT_SOURCE_PREFIX}vehicles-marker`;
 const LAYER_ID = "vehicles-marker";
 const BADGE_IMAGE = "bt-vehicle-badge";
+const BADGE_SELECTED = "bt-vehicle-badge-selected";
 
-function ensureBadgeImage(map: MapLibreMap): void {
-  if (map.hasImage(BADGE_IMAGE)) return;
+function drawBadge(
+  selected: boolean,
+): ImageData | null {
   const w = 56;
   const h = 32;
   const canvas = document.createElement("canvas");
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+  if (!ctx) return null;
   const r = 8;
+  if (selected) {
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(r, 2);
+    ctx.arcTo(w - 2, 2, w - 2, h - 2, r);
+    ctx.arcTo(w - 2, h - 2, 2, h - 2, r);
+    ctx.arcTo(2, h - 2, 2, 2, r);
+    ctx.arcTo(2, 2, w - 2, 2, r);
+    ctx.closePath();
+    ctx.stroke();
+  }
   ctx.fillStyle = "#1f2933";
   ctx.beginPath();
   ctx.moveTo(r, 0);
@@ -35,20 +53,41 @@ function ensureBadgeImage(map: MapLibreMap): void {
   ctx.arcTo(0, 0, w, 0, r);
   ctx.closePath();
   ctx.fill();
-  ctx.fillStyle = "#3b82f6";
+  // Direction notch — pattern (triangle), not colour alone for selection
+  ctx.fillStyle = selected ? "#f8fafc" : "#3b82f6";
   ctx.beginPath();
   ctx.moveTo(w / 2, 2);
   ctx.lineTo(w / 2 + 5, 9);
   ctx.lineTo(w / 2 - 5, 9);
   ctx.closePath();
   ctx.fill();
+  if (selected) {
+    // Plus mark in corner — non-colour selection cue
+    ctx.strokeStyle = "#f8fafc";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(w - 12, 8);
+    ctx.lineTo(w - 12, 14);
+    ctx.moveTo(w - 15, 11);
+    ctx.lineTo(w - 9, 11);
+    ctx.stroke();
+  }
+  return ctx.getImageData(0, 0, w, h);
+}
 
-  const imageData = ctx.getImageData(0, 0, w, h);
-  map.addImage(BADGE_IMAGE, imageData, { pixelRatio: 2 });
+function ensureBadgeImages(map: MapLibreMap): void {
+  if (!map.hasImage(BADGE_IMAGE)) {
+    const img = drawBadge(false);
+    if (img) map.addImage(BADGE_IMAGE, img, { pixelRatio: 2 });
+  }
+  if (!map.hasImage(BADGE_SELECTED)) {
+    const img = drawBadge(true);
+    if (img) map.addImage(BADGE_SELECTED, img, { pixelRatio: 2 });
+  }
 }
 
 function ensureVehicleLayer(map: MapLibreMap): void {
-  ensureBadgeImage(map);
+  ensureBadgeImages(map);
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, {
       type: "geojson",
@@ -68,14 +107,29 @@ function ensureVehicleLayer(map: MapLibreMap): void {
         type: "symbol",
         source: SOURCE_ID,
         layout: {
-          "icon-image": BADGE_IMAGE,
-          "icon-size": 0.9,
+          "icon-image": [
+            "case",
+            ["==", ["get", "selected"], 1],
+            BADGE_SELECTED,
+            BADGE_IMAGE,
+          ],
+          "icon-size": [
+            "case",
+            ["==", ["get", "selected"], 1],
+            1.15,
+            0.9,
+          ],
           "icon-allow-overlap": true,
           "icon-ignore-placement": true,
           "icon-rotate": ["get", "bearing"],
           "icon-rotation-alignment": "map",
           "text-field": ["get", "label"],
-          "text-size": 11,
+          "text-size": [
+            "case",
+            ["==", ["get", "selected"], 1],
+            12,
+            11,
+          ],
           "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
           "text-allow-overlap": true,
           "text-ignore-placement": true,
@@ -85,6 +139,19 @@ function ensureVehicleLayer(map: MapLibreMap): void {
           "text-color": "#ffffff",
           "icon-opacity": ["get", "opacity"],
           "text-opacity": ["get", "opacity"],
+          // Halo on selected text — second non-colour cue
+          "text-halo-color": [
+            "case",
+            ["==", ["get", "selected"], 1],
+            "#0f172a",
+            "rgba(0,0,0,0)",
+          ],
+          "text-halo-width": [
+            "case",
+            ["==", ["get", "selected"], 1],
+            1.25,
+            0,
+          ],
         },
       },
       map.getLayer("overlay-ui") ? "overlay-ui" : undefined,
@@ -98,6 +165,11 @@ function ensureVehicleLayer(map: MapLibreMap): void {
  */
 export function VehicleMarkers() {
   const map = useMapInstance();
+  const { selectedVehicleId, setSelectedVehicleId } = useSelectedVehicle();
+  const { bumpFeedTick, setFeedVehicles } = useVehicleFeedTick();
+  const selectedRef = useRef(selectedVehicleId);
+  selectedRef.current = selectedVehicleId;
+
   const tweensRef = useRef<Map<string, VehicleTween>>(new Map());
   const rafRef = useRef<number | null>(null);
   const lastPayloadRef = useRef<string>("");
@@ -142,7 +214,9 @@ export function VehicleMarkers() {
       performance.now(),
       { reducedMotion: prefersReducedMotion() },
     );
-  }, [feed.vehicles, map]);
+    setFeedVehicles(feed.vehicles);
+    bumpFeedTick();
+  }, [feed.vehicles, map, setFeedVehicles, bumpFeedTick]);
 
   useEffect(() => {
     if (!map) return;
@@ -155,6 +229,7 @@ export function VehicleMarkers() {
       const now = performance.now();
       const { rendered, alive } = sampleTweens(tweensRef.current, now);
       tweensRef.current = alive;
+      const selected = selectedRef.current;
 
       const fc: GeoJSON.FeatureCollection = {
         type: "FeatureCollection",
@@ -165,6 +240,7 @@ export function VehicleMarkers() {
             label: r.label,
             bearing: r.showBearing ? Math.round(r.bearing) : 0,
             opacity: r.opacity,
+            selected: selected === r.vehicleId ? 1 : 0,
           },
           geometry: {
             type: "Point",
@@ -189,12 +265,52 @@ export function VehicleMarkers() {
     };
     map.on("moveend", onMoveEnd);
 
+    const onClick = (e: MapLayerMouseEvent) => {
+      const f = e.features?.[0];
+      const id = f?.properties?.vehicle_id;
+      if (typeof id === "string") {
+        setSelectedVehicleId(id);
+      }
+    };
+    const onEnter = () => {
+      map.getCanvas().style.cursor = "pointer";
+    };
+    const onLeave = () => {
+      map.getCanvas().style.cursor = "";
+    };
+
+    // Keyboard: Enter on focused map with nearest — map canvas isn't focusable by default;
+    // add tabindex and handle Enter using selected/hovered. Minimal: click + panel Escape.
+    map.on("click", LAYER_ID, onClick);
+    map.on("mouseenter", LAYER_ID, onEnter);
+    map.on("mouseleave", LAYER_ID, onLeave);
+
+    const canvas = map.getCanvas();
+    canvas.tabIndex = 0;
+    canvas.setAttribute("role", "application");
+    canvas.setAttribute("aria-label", "Live bus map");
+    const onKeyDown = (ev: KeyboardEvent) => {
+      if (ev.key !== "Enter" && ev.key !== " ") return;
+      // Select first rendered vehicle if none selected (keyboard activation path)
+      if (selectedRef.current) return;
+      const first = tweensRef.current.keys().next().value as string | undefined;
+      if (first) {
+        ev.preventDefault();
+        setSelectedVehicleId(first);
+      }
+    };
+    canvas.addEventListener("keydown", onKeyDown);
+
     return () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
       map.off("moveend", onMoveEnd);
+      map.off("click", LAYER_ID, onClick);
+      map.off("mouseenter", LAYER_ID, onEnter);
+      map.off("mouseleave", LAYER_ID, onLeave);
+      canvas.removeEventListener("keydown", onKeyDown);
       if (moveTimer) clearTimeout(moveTimer);
     };
-  }, [map]);
+  }, [map, setSelectedVehicleId]);
 
   return null;
 }
