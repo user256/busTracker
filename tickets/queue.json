@@ -1,34 +1,7 @@
 {
- "generatedAt": "2026-07-19 18:18:53",
- "head": "6e58cf9",
+ "generatedAt": "2026-07-19 18:24:27",
+ "head": "cbc9599",
  "items": [
-  {
-   "number": 103,
-   "title": "Ticket 103: PostGIS Vehicle Position Store",
-   "status": "Not started",
-   "state": "Not started",
-   "owner": "unassigned",
-   "estimate": "M",
-   "sprint": "Sprint 1",
-   "path": "103-postgis-position-store.md",
-   "href": "103-postgis-position-store.md",
-   "checked": 0,
-   "total": 8,
-   "summary": "The poller in 104 will produce a stream of vehicle positions — potentially every vehicle in the fleet every 10–30 seconds, indefinitely. Two different questions get asked of that stream and they want opposite storage shapes: the map asks \"where is every vehicle right now, inside...",
-   "blocks": [
-    104,
-    105,
-    106,
-    199
-   ],
-   "blocked_by": [
-    101
-   ],
-   "blocked_by_open": [],
-   "last_note_date": "2026-07-19",
-   "note_age_days": null,
-   "stale": false
-  },
   {
    "number": 104,
    "title": "Ticket 104: GTFS-Realtime VehiclePositions Poller",
@@ -52,9 +25,7 @@
     101,
     103
    ],
-   "blocked_by_open": [
-    103
-   ],
+   "blocked_by_open": [],
    "last_note_date": "2026-07-19",
    "note_age_days": null,
    "stale": false
@@ -82,7 +53,6 @@
     104
    ],
    "blocked_by_open": [
-    103,
     104
    ],
    "last_note_date": "2026-07-19",
@@ -111,7 +81,6 @@
     105
    ],
    "blocked_by_open": [
-    103,
     104,
     105
    ],
@@ -204,7 +173,6 @@
     108
    ],
    "blocked_by_open": [
-    103,
     104,
     105,
     106,
@@ -2062,12 +2030,19 @@
    "state_counts": {
     "Not started": 7
    }
+  },
+  {
+   "date": "2026-07-19",
+   "sprint": "Sprint 1",
+   "state_counts": {
+    "Not started": 6
+   }
   }
  ],
  "sprint_summaries": {
   "Sprint 1": {
    "total": 9,
-   "closed": 2,
+   "closed": 3,
    "gate_number": 199,
    "gate_state": "Not started"
   },

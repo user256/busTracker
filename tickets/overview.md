@@ -51,7 +51,7 @@ The main risks are currently:
 | Area | State | Outstanding / next |
 |------|--------|---------------------|
 | **Sprint 0** — Readiness and Cross-Cutting Foundations | Done (Conditional-Go) | 099 Conditional-Go; 101 unblocked. Operator feed still gates 199 |
-| **Sprint 1** — Tracker Data Foundation | In progress | 101–102 done; next: 103 PostGIS position store |
+| **Sprint 1** — Tracker Data Foundation | In progress | 101–103 done; next: 104 GTFS-RT VehiclePositions poller |
 | **Sprint 2** — Live Map Surface | Planned | The customer-facing tracker. Depends on Sprint 1 contracts |
 | **Sprint 3** — Routes, Stops, Timetables | Planned | Reuses Sprint 1 GTFS data |
 | **Sprint 4** — Service Alerts and Disruptions | Planned | Needs Sprint 3 surfaces to display on |
@@ -83,14 +83,13 @@ with the feature they protect rather than being deferred to the final sprint.
 
 These are the recommended next tickets:
 
-1. [Ticket 103: PostGIS Vehicle Position Store](./103-postgis-position-store.md)
-2. [Ticket 104: GTFS-Realtime VehiclePositions Poller](./104-gtfsrt-vehicle-poller.md)
-3. [Ticket 105: Feed Validation and Data-Quality Guards](./105-feed-validation.md)
-4. [Ticket 106: Vehicle Positions Read API](./106-positions-read-api.md)
-5. [Ticket 107: TripUpdates Ingest and Arrival Estimates](./107-tripupdates-arrivals.md)
-6. [Ticket 108: Delivery Platform and Feed Operations](./108-delivery-platform-feed-operations.md)
+1. [Ticket 104: GTFS-Realtime VehiclePositions Poller](./104-gtfsrt-vehicle-poller.md)
+2. [Ticket 105: Feed Validation and Data-Quality Guards](./105-feed-validation.md)
+3. [Ticket 106: Vehicle Positions Read API](./106-positions-read-api.md)
+4. [Ticket 107: TripUpdates Ingest and Arrival Estimates](./107-tripupdates-arrivals.md)
+5. [Ticket 108: Delivery Platform and Feed Operations](./108-delivery-platform-feed-operations.md)
 
-**Recommended next pick:** **103**.
+**Recommended next pick:** **104**.
 
 **Sprint 0 decisions:** [Product](../docs/readiness/product.md) · [Integrations](../docs/readiness/integrations.md) · [Delivery](../docs/readiness/delivery.md) · [ADR 0001](../docs/adr/0001-hosting-platform.md) · [099 Conditional-Go](../docs/readiness/sprint-0-review.md).
 
@@ -114,7 +113,6 @@ get shipped.
 **Theme:** Get trustworthy vehicle and timetable data into a store the tracker can query fast — and know when that data is lying.
 
 **Tickets:**
-- [ ] [Ticket 103: PostGIS Vehicle Position Store](./103-postgis-position-store.md)
 - [ ] [Ticket 104: GTFS-Realtime VehiclePositions Poller](./104-gtfsrt-vehicle-poller.md)
 - [ ] [Ticket 105: Feed Validation and Data-Quality Guards](./105-feed-validation.md)
 - [ ] [Ticket 106: Vehicle Positions Read API](./106-positions-read-api.md)

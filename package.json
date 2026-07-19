@@ -11,7 +11,10 @@
     "db:migrate": "tsx --env-file=.env scripts/db-migrate.ts",
     "worker:dev": "tsx workers/noop.ts",
     "test": "tsx --test test/*.test.ts",
-    "gtfs:import": "tsx scripts/gtfs-import.ts"
+    "gtfs:import": "tsx scripts/gtfs-import.ts",
+    "db:retention": "tsx scripts/db-retention.ts",
+    "seed:positions": "tsx scripts/seed-positions.ts",
+    "bench:viewport": "tsx scripts/bench-viewport.ts"
   },
   "dependencies": {
     "adm-zip": "^0.6.0",

@@ -51,6 +51,10 @@ npm run worker:dev
 | `npm run lint` | ESLint |
 | `npm test` | Node test runner (`test/**/*.test.ts`) |
 | `npm run db:migrate` | Apply SQL migrations (idempotent) |
+| `npm run gtfs:import -- --source PATH` | Load a GTFS static zip |
+| `npm run seed:positions -- --vehicles 5000 --hours 24` | Synthetic positions for bench/tests |
+| `npm run bench:viewport` | Viewport p50/p95 (fails if p95 > 25ms) |
+| `npm run db:retention` | Drop position partitions older than 14 days |
 | `docker compose exec db psql -U bustracker -c "SELECT postgis_version();"` | Confirm PostGIS |
 
 `private.md` is gitignored. Treat it as your local scratchpad. Secrets go in `.env`.
