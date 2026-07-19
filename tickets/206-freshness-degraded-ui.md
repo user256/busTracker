@@ -1,7 +1,7 @@
 # Ticket 206: Data Freshness and Degraded-State UI
 
 **Sprint:** 2 — Live Map Surface
-**Status:** Not started
+**Status:** Done
 **Owner:** unassigned
 **Estimate:** M
 
@@ -17,15 +17,15 @@ Every position and time in the tracker carries an honest, visible freshness stat
 
 ## Acceptance criteria
 
-- [ ] A single `lib/freshness.ts` module exports a pure classifier mapping `(server_generated_at, position_timestamp, last_successful_poll, quality_flags)` to one of four states — `live`, `delayed`, `timetable`, `offline` — with unit tests covering each boundary; Tickets 204 and 205 consume this module rather than reimplementing classification.
-- [ ] Thresholds are explicit and configurable, defaulting to: `live` when the newest position is < 60 s old, `delayed` at 60 s–5 min, `timetable` when > 5 min old or when Ticket 105's validation flags the feed as untrustworthy, and `offline` after three consecutive failed polls.
-- [ ] The badge from Ticket 201 renders the current state with distinct text for each: `● LIVE`, `● DELAYED`, `TIMETABLE ONLY`, `● OFFLINE`. State is conveyed by text and shape, never by dot colour alone.
-- [ ] A "Last updated {n}s ago" line is visible on the map surface at all times without interaction, sourced from the server's `generated_at` rather than the client clock, and it keeps counting up during an outage instead of freezing at its last good value.
-- [ ] In `timetable` state, vehicle markers are visually de-emphasised (reduced opacity, no interpolation) and the map shows a dismissible explanatory banner reading, in substance, "No live data — showing scheduled times"; scheduled times remain available and usable.
-- [ ] In `offline` state the tracker does not display any vehicle marker as a current position; markers are removed or explicitly labelled with their last-seen time.
-- [ ] Positions individually flagged by Ticket 105 (stale, impossible speed, off-route) are rendered in the degraded treatment per-vehicle even while the overall feed state is `live` — one bad bus does not require the whole map to degrade, and does not get to masquerade as good.
-- [ ] An integration test suite drives the UI through a scripted feed that goes fresh → slow → stale → dead → recovering, asserting the badge text, banner presence, and marker treatment at each stage; this test runs in CI on every push.
-- [ ] Every state transition emits a client telemetry event with the state, reason, and duration, so we can answer "how often is the tracker actually live" at the Ticket 299 review with data instead of anecdote.
+- [x] A single `lib/freshness.ts` module exports a pure classifier mapping `(server_generated_at, position_timestamp, last_successful_poll, quality_flags)` to one of four states — `live`, `delayed`, `timetable`, `offline` — with unit tests covering each boundary; Tickets 204 and 205 consume this module rather than reimplementing classification.
+- [x] Thresholds are explicit and configurable, defaulting to: `live` when the newest position is < 60 s old, `delayed` at 60 s–5 min, `timetable` when > 5 min old or when Ticket 105's validation flags the feed as untrustworthy, and `offline` after three consecutive failed polls.
+- [x] The badge from Ticket 201 renders the current state with distinct text for each: `● LIVE`, `● DELAYED`, `TIMETABLE ONLY`, `● OFFLINE`. State is conveyed by text and shape, never by dot colour alone.
+- [x] A "Last updated {n}s ago" line is visible on the map surface at all times without interaction, sourced from the server's `generated_at` rather than the client clock, and it keeps counting up during an outage instead of freezing at its last good value.
+- [x] In `timetable` state, vehicle markers are visually de-emphasised (reduced opacity, no interpolation) and the map shows a dismissible explanatory banner reading, in substance, "No live data — showing scheduled times"; scheduled times remain available and usable.
+- [x] In `offline` state the tracker does not display any vehicle marker as a current position; markers are removed or explicitly labelled with their last-seen time.
+- [x] Positions individually flagged by Ticket 105 (stale, impossible speed, off-route) are rendered in the degraded treatment per-vehicle even while the overall feed state is `live` — one bad bus does not require the whole map to degrade, and does not get to masquerade as good.
+- [x] An integration test suite drives the UI through a scripted feed that goes fresh → slow → stale → dead → recovering, asserting the badge text, banner presence, and marker treatment at each stage; this test runs in CI on every push.
+- [x] Every state transition emits a client telemetry event with the state, reason, and duration, so we can answer "how often is the tracker actually live" at the Ticket 299 review with data instead of anecdote.
 
 ## Out of scope
 
@@ -47,6 +47,7 @@ Compute freshness from a server-provided `generated_at` on every feed response s
 ## Notes / decisions log
 
 - 2026-07-19 — Ticket written during initial roadmap population. No implementation decisions yet.
+- 2026-07-19 — Shipped: `lib/freshness.ts` classifier + hysteresis; MapShell wired to feed-derived state; `LastUpdated`, dismissible timetable banner, marker opacity/interpolation rules, per-vehicle degraded treatment, `freshness_state_transition` telemetry, and CI transition tests.
 
 ---
 

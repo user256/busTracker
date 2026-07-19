@@ -1,15 +1,13 @@
 "use client";
 
+import {
+  liveBadgeLabel,
+  liveBadgeShowsDot,
+  type FreshnessState,
+} from "@/lib/freshness";
 import styles from "./LiveBadge.module.css";
 
-export type LiveBadgeState = "live" | "delayed" | "timetable" | "offline";
-
-const LABELS: Record<LiveBadgeState, string> = {
-  live: "LIVE",
-  delayed: "DELAYED",
-  timetable: "TIMETABLE",
-  offline: "OFFLINE",
-};
+export type LiveBadgeState = FreshnessState;
 
 type Props = {
   state?: LiveBadgeState;
@@ -17,10 +15,12 @@ type Props = {
 };
 
 /**
- * Honesty badge slot (Ticket 201). Real freshness wiring is Ticket 206;
- * non-live states are reachable via `state` prop for demos.
+ * Honesty badge (Tickets 201 + 206). Text and dot shape convey state — not colour alone.
  */
 export function LiveBadge({ state = "live", className }: Props) {
+  const label = liveBadgeLabel(state);
+  const showDot = liveBadgeShowsDot(state);
+
   return (
     <div
       className={[styles.badge, styles[state], className].filter(Boolean).join(" ")}
@@ -28,8 +28,10 @@ export function LiveBadge({ state = "live", className }: Props) {
       role="status"
       aria-live="polite"
     >
-      <span className={styles.dot} aria-hidden />
-      <span className={styles.label}>{LABELS[state]}</span>
+      {showDot ? <span className={styles.dot} aria-hidden /> : (
+        <span className={styles.square} aria-hidden />
+      )}
+      <span className={styles.label}>{label}</span>
     </div>
   );
 }

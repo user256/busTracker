@@ -1,0 +1,43 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: min(100%, 22rem);
+  padding: 0.45rem 0.55rem 0.45rem 0.65rem;
+  border-radius: 8px;
+  background: rgb(15 23 42 / 88%);
+  color: #e2e8f0;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
+  pointer-events: auto;
+}
+
+.text {
+  margin: 0;
+  flex: 1;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.dismiss {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  color: #f8fafc;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dismiss:hover {
+  background: rgb(255 255 255 / 22%);
+}
+
+.dismiss:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}

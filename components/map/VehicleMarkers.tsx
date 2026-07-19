@@ -6,8 +6,10 @@ import {
   useMapInstance,
   useSelectedVehicle,
   useVehicleFeedTick,
+  useFreshnessContext,
 } from "./MapContext";
 import { useVehicleFeed } from "./useVehicleFeed";
+import { useFreshnessFromFeed } from "./useFreshnessFromFeed";
 import { SLOT_SOURCE_PREFIX } from "./layerOrder";
 import {
   applyFeedSnapshot,
@@ -15,6 +17,11 @@ import {
   sampleTweens,
   type VehicleTween,
 } from "@/lib/map/vehicleTween";
+import {
+  isVehicleDegraded,
+  markerOpacityForFreshness,
+  shouldInterpolateMarkers,
+} from "@/lib/freshness";
 
 const SOURCE_ID = `${SLOT_SOURCE_PREFIX}vehicles-marker`;
 const LAYER_ID = "vehicles-marker";
@@ -167,12 +174,14 @@ export function VehicleMarkers() {
   const map = useMapInstance();
   const { selectedVehicleId, setSelectedVehicleId } = useSelectedVehicle();
   const { bumpFeedTick, setFeedVehicles } = useVehicleFeedTick();
+  const { setFreshness, setBannerDismissed } = useFreshnessContext();
   const selectedRef = useRef(selectedVehicleId);
   selectedRef.current = selectedVehicleId;
 
   const tweensRef = useRef<Map<string, VehicleTween>>(new Map());
   const rafRef = useRef<number | null>(null);
   const lastPayloadRef = useRef<string>("");
+  const feedVehiclesRef = useRef<Map<string, { quality: string[] }>>(new Map());
   const [bboxRevision, setBboxRevision] = useState(0);
 
   const getBbox = useCallback(() => {
@@ -191,6 +200,16 @@ export function VehicleMarkers() {
     enabled: Boolean(map),
     bboxRevision,
   });
+
+  const freshness = useFreshnessFromFeed(feed, setFreshness, setBannerDismissed);
+  const mapFreshnessState = freshness?.state ?? "offline";
+  const allowInterpolation = shouldInterpolateMarkers(mapFreshnessState);
+
+  useEffect(() => {
+    feedVehiclesRef.current = new Map(
+      feed.vehicles.map((v) => [v.vehicle_id, { quality: v.quality }]),
+    );
+  }, [feed.vehicles]);
 
   useEffect(() => {
     if (!map) return;
@@ -212,11 +231,20 @@ export function VehicleMarkers() {
       tweensRef.current,
       feed.vehicles,
       performance.now(),
-      { reducedMotion: prefersReducedMotion() },
+      {
+        reducedMotion: prefersReducedMotion(),
+        allowInterpolation,
+      },
     );
     setFeedVehicles(feed.vehicles);
     bumpFeedTick();
-  }, [feed.vehicles, map, setFeedVehicles, bumpFeedTick]);
+  }, [
+    feed.vehicles,
+    map,
+    setFeedVehicles,
+    bumpFeedTick,
+    allowInterpolation,
+  ]);
 
   useEffect(() => {
     if (!map) return;
@@ -230,23 +258,35 @@ export function VehicleMarkers() {
       const { rendered, alive } = sampleTweens(tweensRef.current, now);
       tweensRef.current = alive;
       const selected = selectedRef.current;
+      const hideMarkers = mapFreshnessState === "offline";
 
       const fc: GeoJSON.FeatureCollection = {
         type: "FeatureCollection",
-        features: rendered.map((r) => ({
-          type: "Feature",
-          properties: {
-            vehicle_id: r.vehicleId,
-            label: r.label,
-            bearing: r.showBearing ? Math.round(r.bearing) : 0,
-            opacity: r.opacity,
-            selected: selected === r.vehicleId ? 1 : 0,
-          },
-          geometry: {
-            type: "Point",
-            coordinates: [r.lon, r.lat],
-          },
-        })),
+        features: hideMarkers
+          ? []
+          : rendered.map((r) => {
+              const quality =
+                feedVehiclesRef.current.get(r.vehicleId)?.quality ?? [];
+              const opacity =
+                markerOpacityForFreshness(
+                  mapFreshnessState,
+                  isVehicleDegraded(quality),
+                ) * r.opacity;
+              return {
+                type: "Feature",
+                properties: {
+                  vehicle_id: r.vehicleId,
+                  label: r.label,
+                  bearing: r.showBearing ? Math.round(r.bearing) : 0,
+                  opacity,
+                  selected: selected === r.vehicleId ? 1 : 0,
+                },
+                geometry: {
+                  type: "Point",
+                  coordinates: [r.lon, r.lat],
+                },
+              };
+            }),
       };
 
       const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
@@ -310,7 +350,7 @@ export function VehicleMarkers() {
       canvas.removeEventListener("keydown", onKeyDown);
       if (moveTimer) clearTimeout(moveTimer);
     };
-  }, [map, setSelectedVehicleId]);
+  }, [map, setSelectedVehicleId, mapFreshnessState]);
 
   return null;
 }
