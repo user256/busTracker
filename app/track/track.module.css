@@ -29,6 +29,7 @@
 
 .mapWrap {
   flex: 1;
-  min-height: 0;
+  min-height: 480px;
+  height: calc(100dvh - 3.5rem);
   padding: 0 0.75rem 0.75rem;
 }

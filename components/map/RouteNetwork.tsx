@@ -70,6 +70,7 @@ export function RouteNetwork() {
   const map = useMapInstance();
   const loadedBucket = useRef<number | null>(null);
   const inflight = useRef<AbortController | null>(null);
+  const didFit = useRef(false);
 
   useEffect(() => {
     if (!map) return;
@@ -115,6 +116,35 @@ export function RouteNetwork() {
         stopSrc?.setData(stops);
         paintNetworkLayers(map);
         loadedBucket.current = bucket;
+
+        // First successful load: frame the network so the default Kinross
+        // camera isn't empty when the active feed is elsewhere (or vice versa).
+        if (!didFit.current && lines.features.length > 0) {
+          didFit.current = true;
+          let minLon = 180;
+          let minLat = 90;
+          let maxLon = -180;
+          let maxLat = -90;
+          for (const f of lines.features) {
+            if (f.geometry?.type !== "LineString") continue;
+            for (const c of f.geometry.coordinates) {
+              const [lon, lat] = c as [number, number];
+              minLon = Math.min(minLon, lon);
+              minLat = Math.min(minLat, lat);
+              maxLon = Math.max(maxLon, lon);
+              maxLat = Math.max(maxLat, lat);
+            }
+          }
+          if (minLon <= maxLon && minLat <= maxLat) {
+            map.fitBounds(
+              [
+                [minLon, minLat],
+                [maxLon, maxLat],
+              ],
+              { padding: 48, maxZoom: 12, duration: 600 },
+            );
+          }
+        }
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         console.error("RouteNetwork load failed", err);
