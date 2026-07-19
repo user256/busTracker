@@ -29,6 +29,7 @@
     "csv-parse": "^7.0.1",
     "dotenv": "^17.4.2",
     "gtfs-realtime-bindings": "^1.1.1",
+    "maplibre-gl": "^5.24.0",
     "next": "^15.5.20",
     "pg": "^8.22.0",
     "react": "^19.0.0",
@@ -39,6 +40,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/adm-zip": "^0.5.8",
+    "@types/geojson": "^7946.0.16",
     "@types/node": "^20.19.43",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",

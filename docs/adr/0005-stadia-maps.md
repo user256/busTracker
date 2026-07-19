@@ -13,7 +13,7 @@ Sprint 2 renders a MapLibre map. The stack decision (CLAUDE.md / Ticket 101) nam
 
 - **Provider:** Stadia Maps tiles consumed by MapLibre GL JS (implementation in Ticket 201).
 - **Secrets:** `STADIA_API_KEY` is read only via `lib/env.ts` / `.env` (see `.env.example`). Never commit real keys.
-- **Browser exposure:** Ticket 201 will either (a) use a Stadia key restricted by HTTP referrer / domain and expose a **tile-only** public key via `NEXT_PUBLIC_STADIA_API_KEY`, or (b) proxy tile requests through our origin. The skeleton keeps the server-side `STADIA_API_KEY` optional so `/api/health` and migrations work without maps.
+- **Browser exposure:** Ticket 201 chose **(b) origin proxy**. The browser loads `/api/map/style` and `/api/map/stadia/*` only; `STADIA_API_KEY` is never exposed as `NEXT_PUBLIC_*`.
 - Local development may run without a key until 201; map pages must fail clearly if the key is missing in environments that serve tiles.
 
 ## Consequences

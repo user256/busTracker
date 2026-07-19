@@ -116,7 +116,7 @@ Open work that must complete before Stage C public tracker beta:
 **Theme:** Ship the customer-facing live tracker — the ember.to-style map — and be honest about data quality in the UI.
 
 **Tickets:**
-- [ ] [Ticket 201: Map Shell, Tiles, and Controls](./201-map-shell.md)
+- [x] [Ticket 201: Map Shell, Tiles, and Controls](./201-map-shell.md)
 - [ ] [Ticket 202: Route Network Geometry Rendering](./202-route-geometry.md)
 - [ ] [Ticket 203: Live Vehicle Markers and Refresh Loop](./203-live-vehicle-markers.md)
 - [ ] [Ticket 204: Vehicle Detail Panel](./204-vehicle-detail-panel.md)

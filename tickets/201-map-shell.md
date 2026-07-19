@@ -1,8 +1,8 @@
 # Ticket 201: Map Shell, Tiles, and Controls
 
 **Sprint:** 2 — Live Map Surface
-**Status:** Not started
-**Owner:** unassigned
+**Status:** Done
+**Owner:** Cursor
 **Estimate:** M
 
 ---
@@ -17,14 +17,14 @@ A `<MapShell>` component renders a full-bleed, correctly-attributed Stadia basem
 
 ## Acceptance criteria
 
-- [ ] `components/map/MapShell.tsx` mounts a MapLibre GL JS map into a container that fills its parent, has `border-radius: 12px` and `overflow: hidden`, and resizes correctly via `ResizeObserver` (no stale canvas after a window or panel resize).
-- [ ] The basemap style is fetched from Stadia Maps with the API key injected server-side — the key is read from `STADIA_API_KEY` and never appears in client bundle source; verified by `grep -r "$STADIA_API_KEY" .next/static` returning nothing.
-- [ ] The style is `alidade_smooth` (or a documented equivalent) with a committed style-override JSON that desaturates land/water fills; the diff is recorded in this ticket's decisions log with the reason.
-- [ ] Empty layer slots exist and are documented in `components/map/layerOrder.ts` in bottom-to-top order: `basemap` → `routes-line-casing` → `routes-line` → `stops-circle` → `vehicles-marker` → `overlay-ui`. Later tickets insert using `map.addLayer(spec, beforeId)` against these ids, never bare `addLayer`.
-- [ ] The control stack renders top-right as a single vertical group with 44×44 CSS px hit targets: geolocate/crosshair, zoom in (`+`), zoom out (`−`), compass/bearing reset. The compass control rotates to reflect bearing and resets bearing and pitch to 0 on activation.
-- [ ] `components/map/LiveBadge.tsx` renders a black pill, top-left, with a blue status dot and the text `LIVE`; it accepts a `state` prop (`live | delayed | timetable | offline`) and its non-live states are stubbed but reachable via Storybook or a prop override — the honest-degradation behaviour itself is Ticket 206.
-- [ ] Attribution renders bottom-right reading `© Stadia Maps © OpenMapTiles © OpenStreetMap`, is present on first paint (not injected after tile load), and is not clipped or overlapped at the 375 px breakpoint.
-- [ ] The map reaches first interactive paint in under 2.5 s on a simulated Fast 3G / 4× CPU throttle profile, and MapLibre is code-split so it is not in the initial document JS payload.
+- [x] `components/map/MapShell.tsx` mounts a MapLibre GL JS map into a container that fills its parent, has `border-radius: 12px` and `overflow: hidden`, and resizes correctly via `ResizeObserver` (no stale canvas after a window or panel resize).
+- [x] The basemap style is fetched from Stadia Maps with the API key injected server-side — the key is read from `STADIA_API_KEY` and never appears in client bundle source; verified by `grep -r "$STADIA_API_KEY" .next/static` returning nothing.
+- [x] The style is `alidade_smooth` (or a documented equivalent) with a committed style-override JSON that desaturates land/water fills; the diff is recorded in this ticket's decisions log with the reason.
+- [x] Empty layer slots exist and are documented in `components/map/layerOrder.ts` in bottom-to-top order: `basemap` → `routes-line-casing` → `routes-line` → `stops-circle` → `vehicles-marker` → `overlay-ui`. Later tickets insert using `map.addLayer(spec, beforeId)` against these ids, never bare `addLayer`.
+- [x] The control stack renders top-right as a single vertical group with 44×44 CSS px hit targets: geolocate/crosshair, zoom in (`+`), zoom out (`−`), compass/bearing reset. The compass control rotates to reflect bearing and resets bearing and pitch to 0 on activation.
+- [x] `components/map/LiveBadge.tsx` renders a black pill, top-left, with a blue status dot and the text `LIVE`; it accepts a `state` prop (`live | delayed | timetable | offline`) and its non-live states are stubbed but reachable via Storybook or a prop override — the honest-degradation behaviour itself is Ticket 206.
+- [x] Attribution renders bottom-right reading `© Stadia Maps © OpenMapTiles © OpenStreetMap`, is present on first paint (not injected after tile load), and is not clipped or overlapped at the 375 px breakpoint.
+- [x] The map reaches first interactive paint in under 2.5 s on a simulated Fast 3G / 4× CPU throttle profile, and MapLibre is code-split so it is not in the initial document JS payload.
 
 ## Out of scope
 
@@ -46,6 +46,9 @@ Server component fetches/proxies the style JSON so the key stays server-side; a 
 ## Notes / decisions log
 
 - 2026-07-19 — Ticket written during initial roadmap population. No implementation decisions yet.
+- 2026-07-19 — **Key strategy (ADR 0005 option b):** origin proxy. Browser loads `/api/map/style` and `/api/map/stadia/*` only; `STADIA_API_KEY` stays server-side (never `NEXT_PUBLIC_`).
+- 2026-07-19 — **Basemap:** Stadia `alidade_smooth` with paint overrides in `components/map/styleOverrides.json` (muted blue-grey water `#c5d4de`, pale desaturated land) so routes/vehicles stay salient — ember.to-inspired, not a pixel clone.
+- 2026-07-19 — **Storybook:** not in repo; non-live badge states via `/track?badge=delayed|timetable|offline`.
 
 ---
 

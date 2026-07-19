@@ -1,0 +1,45 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #3b82f6;
+  flex-shrink: 0;
+}
+
+.live .dot {
+  background: #3b82f6;
+}
+
+.delayed .dot {
+  background: #f59e0b;
+}
+
+.timetable .dot {
+  background: #94a3b8;
+}
+
+.offline .dot {
+  background: #ef4444;
+}
+
+.label {
+  transform: translateY(0.5px);
+}

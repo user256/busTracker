@@ -1,0 +1,26 @@
+[
+  {
+    "match": "background",
+    "paint": { "background-color": "#e8ebe6" }
+  },
+  {
+    "match": "water",
+    "paint": { "fill-color": "#c5d4de", "fill-opacity": 0.85 }
+  },
+  {
+    "match": "waterway",
+    "paint": { "line-color": "#c5d4de" }
+  },
+  {
+    "match": "landcover",
+    "paint": { "fill-opacity": 0.35 }
+  },
+  {
+    "match": "landuse",
+    "paint": { "fill-opacity": 0.3 }
+  },
+  {
+    "match": "park",
+    "paint": { "fill-color": "#d5ddd0", "fill-opacity": 0.5 }
+  }
+]
