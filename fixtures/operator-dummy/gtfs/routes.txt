@@ -1,0 +1,3 @@
+route_id,agency_id,route_short_name,route_long_name,route_type,route_color,route_text_color
+55,STAGECOACH,55,Perth - Glenfarg - Kinross,3,E30613,FFFFFF
+23,STAGECOACH,23,Kinross - Dollar - Tillicoultry,3,E30613,FFFFFF

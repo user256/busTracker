@@ -27,10 +27,11 @@ This document tracks every external dependency. Secrets stay in `.env` / the cho
 | `realtime/VehiclePositions.pb` | VehiclePositions snapshot | none | snapshot 2026-07-19 | MBTA open data — fixture only | Delivery |
 | `realtime/TripUpdates.pb` | TripUpdates snapshot | none | snapshot 2026-07-19 | same | Delivery |
 | `realtime/Alerts.pb` | ServiceAlerts snapshot | none | snapshot 2026-07-19 | same | Delivery |
+| `fixtures/operator-dummy/` (in git) | Synthetic Stagecoach-style 55/23 Perth–Kinross–Tillicoultry + local RT server | n/a | rebuild via `npm run dummy:gtfs` | Project-owned dummy — **not** the operator | Delivery |
 | **Operator GTFS static** | Production truth for Sprint 1 | **TBC** | **TBC** | **TBC** | **Operator data team — TBC** |
 | **Operator GTFS-RT VP / TU / Alerts** | Production truth | **TBC** | **TBC** | **TBC** | **Operator data team — TBC** |
 
-**Gate:** Ticket **105** and **199** cannot claim operator feed quality until operator URLs, auth, licence, expected fleet coverage, and escalation contact are filled above. Tickets **102–104**, **107**, **401** may develop against synthetic + MBTA fixtures.
+**Gate:** Ticket **105** / **109** / Stage C cannot claim operator feed quality until operator URLs, auth, licence, expected fleet coverage, and escalation contact are filled above. Tickets **102–104**, **107**, **201+** may develop against synthetic, MBTA, or `fixtures/operator-dummy`.
 
 ---
 
@@ -73,7 +74,7 @@ Status vocabulary: **Ready** · **Partial** · **Not started** · **N/A (deferre
 
 | Dependency | Purpose | First ticket blocked | Status | Sandbox / quota notes | Owner | Fallback |
 |------------|---------|----------------------|--------|----------------------|-------|----------|
-| Operator GTFS + GTFS-RT | Tracker truth | 105, 199 (quality Go); 104 needs URL for live poll | Not started | Place samples under `data/feeds/operator/` when issued; document auth in secret store | Operator data — TBC | MBTA/synthetic fixtures for code only |
+| Operator GTFS + GTFS-RT | Tracker truth | 105, 109 (quality Go); 104 needs URL for live poll | Not started | Place samples under `data/feeds/operator/` when issued; document auth in secret store | Operator data — TBC | `fixtures/operator-dummy` + MBTA/synthetic for code / Sprint 2 only |
 | Postgres 16 + PostGIS image | Local/staging DB | 101 | Ready | Public `postgis/postgis:16-*` images | Delivery | None — hard requirement |
 | Stadia Maps | Map tiles | 201 (runtime); 101 ADR | Not started | Free tier / API key required; set `STADIA_API_KEY` in `.env` | John Fegan | Cannot ship public map without key; local map shell can mock |
 | Geocoding (provider TBC) | Postcode / address → coord | 305 | Not started | Prefer Stadia/geocoding or Ordnance Survey if UK licence allows; decide in 305 if still open | John Fegan | Postcode-only via open dataset if commercial geocoder delayed |

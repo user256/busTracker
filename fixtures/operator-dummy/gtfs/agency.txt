@@ -1,0 +1,2 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone
+STAGECOACH,Stagecoach (dummy Perth/Kinross),https://example.invalid/dummy,Europe/London,en,08456055955

@@ -25,3 +25,10 @@ Complete ≥ 7 consecutive days of 104+107 ingest on the operator feed and re-sc
 
 - **Blocked by:** Sprint 0 R1 (operator feed access)
 - **Blocks:** Stage C public tracker beta (Ticket 001)
+
+## Interim (does not close this ticket)
+
+A **dummy** Perth–Kinross–Tillicoultry feed (`fixtures/operator-dummy/`, routes 55 + 23)
+exists for local soak practice and Sprint 2 map work. See that README for
+`npm run dummy:gtfs` / `dummy:rt`. Running quality reports against the dummy
+**does not** satisfy the acceptance criteria above — operator AVL still required.

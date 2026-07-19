@@ -19,7 +19,10 @@
     "worker:tripupdates": "tsx workers/tripupdates.ts",
     "quality:report": "tsx scripts/quality-report.ts",
     "bench:validate": "tsx scripts/bench-validate.ts",
-    "bench:api": "tsx scripts/bench-api.ts"
+    "bench:api": "tsx scripts/bench-api.ts",
+    "dummy:gtfs": "tsx scripts/operator-dummy/build-gtfs.ts",
+    "dummy:rt": "tsx scripts/operator-dummy/rt-server.ts",
+    "dummy:smoke": "tsx scripts/operator-dummy/smoke-once.ts"
   },
   "dependencies": {
     "adm-zip": "^0.6.0",
