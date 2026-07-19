@@ -1,0 +1,8 @@
+#!/bin/sh
+# Regenerate the ticket dashboard after every pull/merge.
+# Install: cp post-merge .git/hooks/post-merge && chmod +x .git/hooks/post-merge
+repo_root="$(git rev-parse --show-toplevel)" || exit 0
+if [ -f "$repo_root/build_dashboard.py" ]; then
+  python3 "$repo_root/build_dashboard.py" --quiet || \
+    echo "warning: ticket dashboard regeneration failed" >&2
+fi

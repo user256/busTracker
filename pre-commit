@@ -1,0 +1,10 @@
+#!/bin/sh
+# Block commits whose generated ticket dashboard no longer matches tickets/.
+# Install: cp pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+repo_root="$(git rev-parse --show-toplevel)" || exit 0
+if [ -f "$repo_root/build_dashboard.py" ]; then
+  python3 "$repo_root/build_dashboard.py" --check-artifacts || {
+    echo "Commit blocked: regenerate ticket artifacts with python3 build_dashboard.py" >&2
+    exit 1
+  }
+fi

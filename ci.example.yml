@@ -1,0 +1,23 @@
+# Copy this into your CI provider's workflow definition (or adapt its steps).
+# The dashboard artifacts are committed outputs, so CI verifies both ticket
+# integrity and freshness before tests run.
+name: Ticket dashboard
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  ticket-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test runner
+        run: python3 -m pip install pytest
+      - name: Check ticket lint and generated artifacts
+        run: python3 build_dashboard.py --check --check-artifacts
+      - name: Test dashboard generator
+        run: pytest test_build_dashboard.py
