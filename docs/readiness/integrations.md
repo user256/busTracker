@@ -76,7 +76,7 @@ Status vocabulary: **Ready** · **Partial** · **Not started** · **N/A (deferre
 |------------|---------|----------------------|--------|----------------------|-------|----------|
 | Operator GTFS + GTFS-RT | Tracker truth | 105, 109 (quality Go); 104 needs URL for live poll | Not started | Place samples under `data/feeds/operator/` when issued; document auth in secret store | Operator data — TBC | `fixtures/operator-dummy` + MBTA/synthetic for code / Sprint 2 only |
 | Postgres 16 + PostGIS image | Local/staging DB | 101 | Ready | Public `postgis/postgis:16-*` images | Delivery | None — hard requirement |
-| Stadia Maps | Map tiles | 201 (runtime); 101 ADR | Partial | Free tier / API key required; set `STADIA_API_KEY` in `.env`. Browser uses origin proxy (`/api/map/*`) — key never `NEXT_PUBLIC_` | John Fegan | Map shell shows clear error without key |
+| Stadia Maps | Map tiles | 201 (runtime); 101 ADR | Partial | Free tier / API key required; set `STADIA_API_KEY` in `.env`. Browser uses origin proxy (`/api/map/*`) — key never `NEXT_PUBLIC_`. **Until key arrives:** demo Carto raster basemap | John Fegan | Demo basemap (`X-Basemap-Provider: dummy`) — not Stage C |
 | Geocoding (provider TBC) | Postcode / address → coord | 305 | Not started | Prefer Stadia/geocoding or Ordnance Survey if UK licence allows; decide in 305 if still open | John Fegan | Postcode-only via open dataset if commercial geocoder delayed |
 | Stripe | Payments | 502 | Not started | Create test-mode account; restrict live mode to Stage E (001) | John Fegan / finance | No ticket sales until Ready |
 | Transactional email | Receipts, magic links, alerts | 502, 508, 403, 601 | Not started | Candidate: Resend or Postmark; sandbox domain required | John Fegan | Log-only sink in dev |

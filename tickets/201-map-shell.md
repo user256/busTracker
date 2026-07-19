@@ -49,6 +49,7 @@ Server component fetches/proxies the style JSON so the key stays server-side; a 
 - 2026-07-19 — **Key strategy (ADR 0005 option b):** origin proxy. Browser loads `/api/map/style` and `/api/map/stadia/*` only; `STADIA_API_KEY` stays server-side (never `NEXT_PUBLIC_`).
 - 2026-07-19 — **Basemap:** Stadia `alidade_smooth` with paint overrides in `components/map/styleOverrides.json` (muted blue-grey water `#c5d4de`, pale desaturated land) so routes/vehicles stay salient — ember.to-inspired, not a pixel clone.
 - 2026-07-19 — **Storybook:** not in repo; non-live badge states via `/track?badge=delayed|timetable|offline`.
+- 2026-07-19 — **No Stadia key:** `/api/map/style` falls back to a desaturated Carto Positron raster (`lib/map/dummyBasemap.ts`) with a “Demo basemap” chip; attribution switches to OSM/CARTO. Not for Stage C.
 
 ---
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import overrides from "@/components/map/styleOverrides.json";
 import { getEnv } from "@/lib/env";
+import { buildDummyBasemapStyle } from "@/lib/map/dummyBasemap";
 import {
   appendApiKey,
   prepareClientStyle,
@@ -16,13 +17,12 @@ const STYLE_URL =
 export async function GET() {
   const { STADIA_API_KEY } = getEnv();
   if (!STADIA_API_KEY) {
-    return NextResponse.json(
-      {
-        error: "STADIA_API_KEY is not configured",
-        hint: "Set STADIA_API_KEY in .env (server-only; never NEXT_PUBLIC_).",
+    return NextResponse.json(buildDummyBasemapStyle(), {
+      headers: {
+        "Cache-Control": "private, max-age=60",
+        "X-Basemap-Provider": "dummy",
       },
-      { status: 503 },
-    );
+    });
   }
 
   const upstream = appendApiKey(STYLE_URL, STADIA_API_KEY);
@@ -31,10 +31,15 @@ export async function GET() {
     next: { revalidate: 3600 },
   });
   if (!res.ok) {
-    return NextResponse.json(
-      { error: `Stadia style fetch failed: HTTP ${res.status}` },
-      { status: 502 },
-    );
+    // Fall back to demo basemap rather than hard-failing the map shell.
+    return NextResponse.json(buildDummyBasemapStyle(), {
+      status: 200,
+      headers: {
+        "Cache-Control": "private, max-age=60",
+        "X-Basemap-Provider": "dummy",
+        "X-Basemap-Fallback-Reason": `stadia_http_${res.status}`,
+      },
+    });
   }
 
   const style = (await res.json()) as Record<string, unknown>;
@@ -46,6 +51,7 @@ export async function GET() {
   return NextResponse.json(clientStyle, {
     headers: {
       "Cache-Control": "private, max-age=300",
+      "X-Basemap-Provider": "stadia",
     },
   });
 }

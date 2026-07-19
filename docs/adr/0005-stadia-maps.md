@@ -14,7 +14,8 @@ Sprint 2 renders a MapLibre map. The stack decision (CLAUDE.md / Ticket 101) nam
 - **Provider:** Stadia Maps tiles consumed by MapLibre GL JS (implementation in Ticket 201).
 - **Secrets:** `STADIA_API_KEY` is read only via `lib/env.ts` / `.env` (see `.env.example`). Never commit real keys.
 - **Browser exposure:** Ticket 201 chose **(b) origin proxy**. The browser loads `/api/map/style` and `/api/map/stadia/*` only; `STADIA_API_KEY` is never exposed as `NEXT_PUBLIC_*`.
-- Local development may run without a key until 201; map pages must fail clearly if the key is missing in environments that serve tiles.
+- **No key yet:** `/api/map/style` serves a **demo Carto Positron raster** basemap (`X-Basemap-Provider: dummy`) so Sprint 2 map work continues. Production Stage C still requires Stadia.
+- Local development may run without a key; the map shell shows a “Demo basemap” note rather than a hard error.
 
 ## Consequences
 

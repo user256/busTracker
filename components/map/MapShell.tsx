@@ -7,6 +7,10 @@ import { MapControls } from "./MapControls";
 import { MapProvider, useMapSetter } from "./MapContext";
 import { RouteNetwork } from "./RouteNetwork";
 import { SLOT_LAYER_IDS, SLOT_SOURCE_PREFIX } from "./layerOrder";
+import {
+  DUMMY_BASEMAP_ATTRIBUTION,
+  STADIA_BASEMAP_ATTRIBUTION,
+} from "@/lib/map/dummyBasemap";
 import styles from "./MapShell.module.css";
 
 export type MapShellProps = {
@@ -31,6 +35,7 @@ function MapShellInner({
   const setMap = useMapSetter();
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [basemap, setBasemap] = useState<"stadia" | "dummy">("stadia");
 
   useEffect(() => {
     const el = containerRef.current;
@@ -48,12 +53,14 @@ function MapShellInner({
         if (!styleRes.ok) {
           const body = (await styleRes.json().catch(() => ({}))) as {
             error?: string;
-            hint?: string;
           };
-          throw new Error(
-            body.error ?? `Style HTTP ${styleRes.status}`,
-          );
+          throw new Error(body.error ?? `Style HTTP ${styleRes.status}`);
         }
+        const provider =
+          styleRes.headers.get("x-basemap-provider") === "dummy"
+            ? "dummy"
+            : "stadia";
+        setBasemap(provider);
         const style = (await styleRes.json()) as StyleSpecification;
         if (cancelled) return;
 
@@ -79,12 +86,11 @@ function MapShellInner({
               });
             }
             if (!map.getLayer(id)) {
-              const sourceIdForLayer = sourceId;
               if (id.includes("line")) {
                 map.addLayer({
                   id,
                   type: "line",
-                  source: sourceIdForLayer,
+                  source: sourceId,
                   layout: { visibility: "none" },
                   paint: {
                     "line-color": "#000",
@@ -96,7 +102,7 @@ function MapShellInner({
                 map.addLayer({
                   id,
                   type: "circle",
-                  source: sourceIdForLayer,
+                  source: sourceId,
                   layout: { visibility: "none" },
                   paint: {
                     "circle-radius": 1,
@@ -132,31 +138,38 @@ function MapShellInner({
       mapRef.current = null;
       setMap(null);
     };
-    // center/zoom only used at init
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setMap]);
 
   return (
-    <div className={styles.root} data-map-ready={ready ? "true" : "false"}>
+    <div
+      className={styles.root}
+      data-map-ready={ready ? "true" : "false"}
+      data-basemap={basemap}
+    >
       <div ref={containerRef} className={styles.canvas} />
       {error ? (
         <div className={styles.error} role="alert">
           <strong>Map unavailable</strong>
           <p>{error}</p>
-          <p className={styles.hint}>
-            Set <code>STADIA_API_KEY</code> in <code>.env</code> (server-only).
-          </p>
         </div>
       ) : null}
       <div className={styles.topLeft}>
         <LiveBadge state={liveState} />
+        {basemap === "dummy" ? (
+          <div className={styles.demoNote} role="status">
+            Demo basemap — awaiting Stadia key
+          </div>
+        ) : null}
       </div>
       <div className={styles.topRight}>
         <MapControls />
       </div>
       <RouteNetwork />
       <div className={styles.attribution}>
-        © Stadia Maps © OpenMapTiles © OpenStreetMap
+        {basemap === "dummy"
+          ? DUMMY_BASEMAP_ATTRIBUTION
+          : STADIA_BASEMAP_ATTRIBUTION}
       </div>
     </div>
   );
