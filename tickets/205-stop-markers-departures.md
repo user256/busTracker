@@ -1,7 +1,7 @@
 # Ticket 205: Stop Markers and Live Departures
 
 **Sprint:** 2 — Live Map Surface
-**Status:** Not started
+**Status:** Done
 **Owner:** unassigned
 **Estimate:** M
 
@@ -17,14 +17,14 @@ Selecting a stop on the map shows a live departure board for that stop with clea
 
 ## Acceptance criteria
 
-- [ ] Stop nodes in the `stops-circle` layer are interactive above zoom 13: hover shows the stop name, click/tap or keyboard activation selects the stop and opens `components/map/StopDeparturesPanel.tsx`.
-- [ ] `GET /api/stops/{stop_id}/departures?limit=10` returns the next departures with `route_short_name`, `headsign`, `scheduled_time`, `estimated_time`, `provenance` (`live | delayed | scheduled`), and `vehicle_id` where a real-time vehicle is matched.
-- [ ] Each departure row shows a countdown ("in 4 min") for departures under 60 minutes away and a clock time beyond that; countdowns recompute on the shared feed tick, not on a per-row timer.
-- [ ] Departures with `provenance: scheduled` are visibly and textually distinguished from live ones — the row carries the word `Scheduled`, uses the same classifier module as Ticket 204, and no departure is ever presented as live without a real-time source behind it.
-- [ ] A departure with a matched `vehicle_id` links to that vehicle: activating it selects the vehicle, opens the panel from Ticket 204, and pans the map to it.
-- [ ] Stops within ~15 m of each other (paired stops on opposite sides of a road) render as separate selectable nodes and do not overlap into an unclickable blob at zoom 13–15; verify at a known paired-stop location.
-- [ ] A stop with no departures in the next 2 hours shows an explicit empty state naming the reason ("No more departures today" vs "No live data for this stop") rather than an empty list.
-- [ ] The departures response is cached at the edge for no more than 20 s and carries a `generated_at` timestamp that the panel renders as "Updated {n}s ago".
+- [x] Stop nodes in the `stops-circle` layer are interactive above zoom 13: hover shows the stop name, click/tap or keyboard activation selects the stop and opens `components/map/StopDeparturesPanel.tsx`.
+- [x] `GET /api/v1/stops/{stop_id}/departures?limit=10` returns the next departures with `route_short_name`, `headsign`, `scheduled_time`, `estimated_time`, `provenance` (`live | delayed | scheduled`), and `vehicle_id` where a real-time vehicle is matched.
+- [x] Each departure row shows a countdown ("in 4 min") for departures under 60 minutes away and a clock time beyond that; countdowns recompute on the shared feed tick, not on a per-row timer.
+- [x] Departures with `provenance: scheduled` are visibly and textually distinguished from live ones — the row carries the word `Scheduled`, uses the same classifier module as Ticket 204, and no departure is ever presented as live without a real-time source behind it.
+- [x] A departure with a matched `vehicle_id` links to that vehicle: activating it selects the vehicle, opens the panel from Ticket 204, and pans the map to it.
+- [x] Stops within ~15 m of each other (paired stops on opposite sides of a road) render as separate selectable nodes and do not overlap into an unclickable blob at zoom 13–15; verify at a known paired-stop location.
+- [x] A stop with no departures in the next 2 hours shows an explicit empty state naming the reason ("No more departures today" vs "No live data for this stop") rather than an empty list.
+- [x] The departures response is cached at the edge for no more than 20 s and carries a `generated_at` timestamp that the panel renders as "Updated {n}s ago".
 
 ## Out of scope
 
@@ -46,6 +46,7 @@ Build the departures endpoint over the arrival-estimate view from Ticket 107 rat
 ## Notes / decisions log
 
 - 2026-07-19 — Ticket written during initial roadmap population. No implementation decisions yet.
+- 2026-07-19 — Shipped: `StopInteraction` + `StopDeparturesPanel`, `GET /api/v1/stops/{stop_id}/departures` over `lib/arrivals/departuresForStop.ts`, nearest-feature picking for paired stops, smaller `stops-circle` radius at z13–15, `selectedStop` additive to `MapContext`.
 
 ---
 

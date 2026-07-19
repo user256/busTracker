@@ -6,6 +6,8 @@ import { LiveBadge, type LiveBadgeState } from "./LiveBadge";
 import { MapControls } from "./MapControls";
 import { MapProvider, useMapSetter } from "./MapContext";
 import { RouteNetwork } from "./RouteNetwork";
+import { StopInteraction } from "./StopInteraction";
+import { StopDeparturesPanel } from "./StopDeparturesPanel";
 import { VehicleMarkers } from "./VehicleMarkers";
 import { VehicleDetailPanel } from "./VehicleDetailPanel";
 import { SLOT_LAYER_IDS, SLOT_SOURCE_PREFIX } from "./layerOrder";
@@ -170,7 +172,9 @@ function MapShellInner({
         <MapControls />
       </div>
       <RouteNetwork />
+      <StopInteraction />
       <VehicleMarkers />
+      <StopDeparturesPanel />
       <VehicleDetailPanel />
       <div className={styles.attribution}>
         {basemap === "dummy"

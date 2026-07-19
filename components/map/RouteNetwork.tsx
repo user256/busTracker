@@ -46,14 +46,17 @@ function paintNetworkLayers(map: NonNullable<ReturnType<typeof useMapInstance>>)
     map.setPaintProperty("stops-circle", "circle-stroke-color", BRAND_ROUTE_GREEN);
     map.setPaintProperty("stops-circle", "circle-stroke-width", 2);
     map.setPaintProperty("stops-circle", "circle-opacity", 1);
+    // Smaller radius at z13–15 keeps paired stops (~15 m) separately clickable.
     map.setPaintProperty("stops-circle", "circle-radius", [
       "interpolate",
       ["linear"],
       ["zoom"],
       11,
-      3,
+      2,
+      13,
+      2.5,
       14,
-      5,
+      3,
       16,
       7,
     ]);
