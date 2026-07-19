@@ -1,0 +1,15 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  color: #1a1a1a;
+  background: #f7f7f5;
+}
+
+a {
+  color: #0b5fff;
+}

@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgis/postgis:16-3.5
+    container_name: bustracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bustracker
+      POSTGRES_PASSWORD: bustracker
+      POSTGRES_DB: bustracker
+    ports:
+      - "55432:5432"
+    volumes:
+      - bustracker_pgdata:/var/lib/postgresql/data
+      - ./db/docker-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bustracker -d bustracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  bustracker_pgdata:

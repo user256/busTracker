@@ -1,8 +1,8 @@
 # Ticket 101: Architecture Decision Record and Project Skeleton
 
 **Sprint:** 1 — Tracker Data Foundation
-**Status:** Not started
-**Owner:** unassigned
+**Status:** Done
+**Owner:** John Fegan
 **Estimate:** M
 
 ---
@@ -17,14 +17,14 @@ A developer can clone the repo, run one command, and get a working Next.js app p
 
 ## Acceptance criteria
 
-- [ ] `docker compose up` from the repo root starts a `db` service on Postgres 16 with the PostGIS extension available, and `docker compose exec db psql -U bustracker -c "SELECT postgis_version();"` returns a version string.
-- [ ] `npm run dev` starts the Next.js App Router app on `http://localhost:3000` and `GET /api/health` returns `200` with JSON `{"status":"ok","db":"ok","migrations":"<latest applied version>"}`; the endpoint returns `503` with `"db":"error"` when Postgres is stopped.
-- [ ] A migration runner exists: `npm run db:migrate` applies every file in `db/migrations/*.sql` in lexical order and records applied versions in a `schema_migrations` table; running it twice is a no-op and exits `0`.
-- [ ] The repo contains the agreed directory layout with at least `app/`, `lib/db/`, `workers/`, `db/migrations/`, and `tickets/`, and `workers/` contains a runnable no-op worker entrypoint invoked by `npm run worker:dev` that connects to Postgres and logs a structured startup line.
-- [ ] `npm run typecheck` (`tsc --noEmit`, `strict: true`) and `npm run lint` both exit `0` on a clean checkout.
-- [ ] At least four ADRs exist under `docs/adr/` numbered `0001`–`000N`, covering: (a) Next.js App Router + Node runtime boundary and why ingest runs as a separate long-lived worker process rather than in a route handler or serverless function, (b) Postgres 16 + PostGIS as the single store for both GTFS static and realtime positions, (c) the migration tooling choice, (d) the tile provider (Stadia Maps) and the API-key handling that implies.
-- [ ] Configuration is read from environment only via a single validated module (`lib/env.ts`) that fails fast at startup with a named list of missing variables; `.env.example` lists every required variable and no secret values are tracked in git.
-- [ ] `README.md` documents the one-command local bring-up, the migration command, and how to run the worker, and a reviewer following it on a clean machine reaches a green `/api/health`.
+- [x] `docker compose up` from the repo root starts a `db` service on Postgres 16 with the PostGIS extension available, and `docker compose exec db psql -U bustracker -c "SELECT postgis_version();"` returns a version string.
+- [x] `npm run dev` starts the Next.js App Router app on `http://localhost:3000` and `GET /api/health` returns `200` with JSON `{"status":"ok","db":"ok","migrations":"<latest applied version>"}`; the endpoint returns `503` with `"db":"error"` when Postgres is stopped.
+- [x] A migration runner exists: `npm run db:migrate` applies every file in `db/migrations/*.sql` in lexical order and records applied versions in a `schema_migrations` table; running it twice is a no-op and exits `0`.
+- [x] The repo contains the agreed directory layout with at least `app/`, `lib/db/`, `workers/`, `db/migrations/`, and `tickets/`, and `workers/` contains a runnable no-op worker entrypoint invoked by `npm run worker:dev` that connects to Postgres and logs a structured startup line.
+- [x] `npm run typecheck` (`tsc --noEmit`, `strict: true`) and `npm run lint` both exit `0` on a clean checkout.
+- [x] At least four ADRs exist under `docs/adr/` numbered `0001`–`000N`, covering: (a) Next.js App Router + Node runtime boundary and why ingest runs as a separate long-lived worker process rather than in a route handler or serverless function, (b) Postgres 16 + PostGIS as the single store for both GTFS static and realtime positions, (c) the migration tooling choice, (d) the tile provider (Stadia Maps) and the API-key handling that implies.
+- [x] Configuration is read from environment only via a single validated module (`lib/env.ts`) that fails fast at startup with a named list of missing variables; `.env.example` lists every required variable and no secret values are tracked in git.
+- [x] `README.md` documents the one-command local bring-up, the migration command, and how to run the worker, and a reviewer following it on a clean machine reaches a green `/api/health`.
 
 ## Out of scope
 
@@ -46,6 +46,8 @@ Start with `create-next-app --typescript --app`, then strip it back to a shell. 
 ## Notes / decisions log
 
 - 2026-07-19 — Ticket written during initial roadmap population. No implementation decisions yet.
+- 2026-07-19 — Sprint 0 Conditional-Go (099). Owner assigned. Deployment target: Docker Compose + long-lived workers (ADR 0001). PostGIS image `postgis/postgis:16-3.5` available on the build host.
+- 2026-07-19 — Skeleton landed: Next 15.5.20 App Router, `lib/env` + `lib/db`, SQL migrator, noop worker, ADRs 0001–0005, health route verified 200/503. Host port `55432` to avoid local Postgres collisions. Tests: `npm test` (env + migrate).
 
 ---
 

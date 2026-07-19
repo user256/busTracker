@@ -50,8 +50,8 @@ The main risks are currently:
 
 | Area | State | Outstanding / next |
 |------|--------|---------------------|
-| **Sprint 0** — Readiness and Cross-Cutting Foundations | In progress | Product/jurisdiction decisions, private data access, delivery model, named owners |
-| **Sprint 1** — Tracker Data Foundation | Planned | Feed ingest, PostGIS schema, data-quality guards, and staging feed operations |
+| **Sprint 0** — Readiness and Cross-Cutting Foundations | Done (Conditional-Go) | 099 Conditional-Go; 101 unblocked. Operator feed still gates 199 |
+| **Sprint 1** — Tracker Data Foundation | In progress | 101 done; next: 102 GTFS static ingest |
 | **Sprint 2** — Live Map Surface | Planned | The customer-facing tracker. Depends on Sprint 1 contracts |
 | **Sprint 3** — Routes, Stops, Timetables | Planned | Reuses Sprint 1 GTFS data |
 | **Sprint 4** — Service Alerts and Disruptions | Planned | Needs Sprint 3 surfaces to display on |
@@ -83,20 +83,17 @@ with the feature they protect rather than being deferred to the final sprint.
 
 These are the recommended next tickets:
 
-1. [Ticket 001: Product, Jurisdiction, and Launch Readiness](./001-product-and-launch-readiness.md)
-2. [Ticket 002: Data and Vendor Access Readiness](./002-data-and-vendor-access-readiness.md)
-3. [Ticket 003: Delivery and Operating Model](./003-delivery-and-operating-model.md)
-4. [Ticket 099: Sprint 0 Readiness Review and Go/No-Go](./099-sprint-0-review.md)
-5. [Ticket 101: Architecture Decision Record and Project Skeleton](./101-architecture-and-skeleton.md)
-6. [Ticket 102: GTFS Static Ingest and Schema](./102-gtfs-static-ingest.md)
-7. [Ticket 103: PostGIS Vehicle Position Store](./103-postgis-position-store.md)
-8. [Ticket 104: GTFS-Realtime VehiclePositions Poller](./104-gtfsrt-vehicle-poller.md)
-9. [Ticket 105: Feed Validation and Data-Quality Guards](./105-feed-validation.md)
-10. [Ticket 106: Vehicle Positions Read API](./106-positions-read-api.md)
-11. [Ticket 107: TripUpdates Ingest and Arrival Estimates](./107-tripupdates-arrivals.md)
-12. [Ticket 108: Delivery Platform and Feed Operations](./108-delivery-platform-feed-operations.md)
+1. [Ticket 102: GTFS Static Ingest and Schema](./102-gtfs-static-ingest.md)
+2. [Ticket 103: PostGIS Vehicle Position Store](./103-postgis-position-store.md)
+3. [Ticket 104: GTFS-Realtime VehiclePositions Poller](./104-gtfsrt-vehicle-poller.md)
+4. [Ticket 105: Feed Validation and Data-Quality Guards](./105-feed-validation.md)
+5. [Ticket 106: Vehicle Positions Read API](./106-positions-read-api.md)
+6. [Ticket 107: TripUpdates Ingest and Arrival Estimates](./107-tripupdates-arrivals.md)
+7. [Ticket 108: Delivery Platform and Feed Operations](./108-delivery-platform-feed-operations.md)
 
-**Recommended next pick:** **001**.
+**Recommended next pick:** **102**.
+
+**Sprint 0 decisions:** [Product](../docs/readiness/product.md) · [Integrations](../docs/readiness/integrations.md) · [Delivery](../docs/readiness/delivery.md) · [ADR 0001](../docs/adr/0001-hosting-platform.md) · [099 Conditional-Go](../docs/readiness/sprint-0-review.md).
 
 Do not start Sprint 2 map work before 105 is done. Building the map against an
 unvalidated feed is exactly how "fixed in code, still wrong in production" bugs
@@ -113,33 +110,11 @@ get shipped.
 
 ---
 
-# Sprint 0: Readiness and Cross-Cutting Foundations
-
-**Theme:** Resolve the assumptions, access, ownership, and operating model that would otherwise be decided accidentally in code.
-
-**Tickets:**
-- [ ] [Ticket 001: Product, Jurisdiction, and Launch Readiness](./001-product-and-launch-readiness.md)
-- [ ] [Ticket 002: Data and Vendor Access Readiness](./002-data-and-vendor-access-readiness.md)
-- [ ] [Ticket 003: Delivery and Operating Model](./003-delivery-and-operating-model.md)
-- [ ] [Ticket 099: Sprint 0 Readiness Review and Go/No-Go](./099-sprint-0-review.md)
-
-**Exit criteria:**
-- jurisdiction, launch stages, scope, and accountable owners are recorded
-- representative feeds and required vendor sandboxes are privately accessible
-- hosting, environments, CI/CD, secrets, observability, and operational ownership are decided
-- the public repository has an explicit publishable/private-data boundary
-- Ticket 101 has no unresolved decision that changes its architecture
-
-**Explicitly out of scope:** application implementation and production provisioning.
-
----
-
 # Sprint 1: Tracker Data Foundation
 
 **Theme:** Get trustworthy vehicle and timetable data into a store the tracker can query fast — and know when that data is lying.
 
 **Tickets:**
-- [ ] [Ticket 101: Architecture Decision Record and Project Skeleton](./101-architecture-and-skeleton.md)
 - [ ] [Ticket 102: GTFS Static Ingest and Schema](./102-gtfs-static-ingest.md)
 - [ ] [Ticket 103: PostGIS Vehicle Position Store](./103-postgis-position-store.md)
 - [ ] [Ticket 104: GTFS-Realtime VehiclePositions Poller](./104-gtfsrt-vehicle-poller.md)

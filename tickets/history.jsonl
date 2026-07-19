@@ -13,3 +13,9 @@
 {"date": "2026-07-19", "sprint": "Sprint 4", "state_counts": {"Planned": 6}}
 {"date": "2026-07-19", "sprint": "Sprint 5", "state_counts": {"Planned": 10}}
 {"date": "2026-07-19", "sprint": "Sprint 7", "state_counts": {"Planned": 7}}
+{"date": "2026-07-19", "sprint": "Sprint 0", "state_counts": {"Needs closing": 1, "Not started": 3}}
+{"date": "2026-07-19", "sprint": "Sprint 0", "state_counts": {"Not started": 3}}
+{"date": "2026-07-19", "sprint": "Sprint 0", "state_counts": {"Not started": 2}}
+{"date": "2026-07-19", "sprint": "Sprint 0", "state_counts": {"Not started": 1}}
+{"date": "2026-07-19", "sprint": "Sprint 0", "state_counts": {}}
+{"date": "2026-07-19", "sprint": "Sprint 1", "state_counts": {"Not started": 8}}
