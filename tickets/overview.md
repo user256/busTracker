@@ -51,8 +51,8 @@ The main risks are currently:
 | Area | State | Outstanding / next |
 |------|--------|---------------------|
 | **Sprint 0** — Readiness and Cross-Cutting Foundations | Done (Conditional-Go) | 099 Conditional-Go; 101 unblocked. Operator feed still gates 199 |
-| **Sprint 1** — Tracker Data Foundation | In progress | 101–103 done; next: 104 GTFS-RT VehiclePositions poller |
-| **Sprint 2** — Live Map Surface | Planned | The customer-facing tracker. Depends on Sprint 1 contracts |
+| **Sprint 1** — Tracker Data Foundation | Done (Conditional-Go) | [Sprint 1 review](../docs/reviews/sprint-1.md); follow-ups [109](./109-operator-feed-observation-window.md), [110](./110-staging-host-soak.md) |
+| **Sprint 2** — Live Map Surface | Planned / next | The customer-facing tracker. Conditional-Go from Sprint 1 |
 | **Sprint 3** — Routes, Stops, Timetables | Planned | Reuses Sprint 1 GTFS data |
 | **Sprint 4** — Service Alerts and Disruptions | Planned | Needs Sprint 3 surfaces to display on |
 | **Sprint 5** — Ticketing and Payments | Planned | Independent of tracker; commercially critical |
@@ -83,19 +83,22 @@ with the feature they protect rather than being deferred to the final sprint.
 
 These are the recommended next tickets:
 
-1. [Ticket 104: GTFS-Realtime VehiclePositions Poller](./104-gtfsrt-vehicle-poller.md)
-2. [Ticket 105: Feed Validation and Data-Quality Guards](./105-feed-validation.md)
-3. [Ticket 106: Vehicle Positions Read API](./106-positions-read-api.md)
-4. [Ticket 107: TripUpdates Ingest and Arrival Estimates](./107-tripupdates-arrivals.md)
-5. [Ticket 108: Delivery Platform and Feed Operations](./108-delivery-platform-feed-operations.md)
+1. [Ticket 201: Map Shell, Tiles, and Controls](./201-map-shell.md)
 
-**Recommended next pick:** **104**.
+**Recommended next pick:** **201**.
+
+**Sprint 1 outcome:** [Conditional-Go review](../docs/reviews/sprint-1.md). Complete follow-ups [109](./109-operator-feed-observation-window.md) (operator 7-day observation) and [110](./110-staging-host-soak.md) (24h staging soak) before public beta.
 
 **Sprint 0 decisions:** [Product](../docs/readiness/product.md) · [Integrations](../docs/readiness/integrations.md) · [Delivery](../docs/readiness/delivery.md) · [ADR 0001](../docs/adr/0001-hosting-platform.md) · [099 Conditional-Go](../docs/readiness/sprint-0-review.md).
 
-Do not start Sprint 2 map work before 105 is done. Building the map against an
-unvalidated feed is exactly how "fixed in code, still wrong in production" bugs
-get shipped.
+---
+
+# Sprint 1 follow-ups (Conditional-Go)
+
+Open work that must complete before Stage C public tracker beta:
+
+- [ ] [Ticket 109: Operator Feed Observation Window](./109-operator-feed-observation-window.md)
+- [ ] [Ticket 110: Staging Host Soak](./110-staging-host-soak.md)
 
 ---
 
@@ -105,31 +108,6 @@ get shipped.
 - Work tickets start at `N01`. Insert mid-sprint additions at the next free number (`N06`, `N07`, ...).
 - `N00` may be used for a cross-cutting foundation that must precede the sprint's feature tickets.
 - **`N99` is always the sprint review gate.** It is the only mandatory ticket in every sprint and exists to force a Go/No-Go decision before moving on.
-
----
-
-# Sprint 1: Tracker Data Foundation
-
-**Theme:** Get trustworthy vehicle and timetable data into a store the tracker can query fast — and know when that data is lying.
-
-**Tickets:**
-- [ ] [Ticket 104: GTFS-Realtime VehiclePositions Poller](./104-gtfsrt-vehicle-poller.md)
-- [ ] [Ticket 105: Feed Validation and Data-Quality Guards](./105-feed-validation.md)
-- [ ] [Ticket 106: Vehicle Positions Read API](./106-positions-read-api.md)
-- [ ] [Ticket 107: TripUpdates Ingest and Arrival Estimates](./107-tripupdates-arrivals.md)
-- [ ] [Ticket 108: Delivery Platform and Feed Operations](./108-delivery-platform-feed-operations.md)
-- [ ] [Ticket 199: Sprint 1 Review and Go/No-Go](./199-sprint-1-review.md)
-
-**Exit criteria:**
-- GTFS static data (routes, stops, trips, stop_times, shapes, calendars) loads reproducibly
-- GTFS-RT vehicle positions ingest continuously without operator intervention
-- stale, impossible, and off-route positions are detected and flagged, not served as truth
-- the read API returns positions for a viewport or route within the latency budget
-- arrival estimates exist and are explicitly distinguishable from scheduled times
-- supervised workers and scheduled static-feed refresh run in staging with rollback and baseline telemetry
-- team decides whether the feed is good enough to build Sprint 2 on
-
-**Explicitly out of scope:** any customer-facing UI, ticketing, accounts, journey planning.
 
 ---
 

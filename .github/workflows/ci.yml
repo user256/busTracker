@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  ticket-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install pytest
+      - run: python3 build_dashboard.py --check --check-artifacts
+      - run: python3 -m pytest -q
+
+  app:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgis/postgis:16-3.5
+        env:
+          POSTGRES_USER: bustracker
+          POSTGRES_PASSWORD: bustracker
+          POSTGRES_DB: bustracker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bustracker -d bustracker"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://bustracker:bustracker@localhost:5432/bustracker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Enable PostGIS
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+          for i in $(seq 1 30); do
+            psql "$DATABASE_URL" -c "SELECT 1" && break
+            sleep 2
+          done
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+      - run: npm run db:migrate
+      - run: npm test

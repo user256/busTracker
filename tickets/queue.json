@@ -1,185 +1,50 @@
 {
- "generatedAt": "2026-07-19 18:24:27",
- "head": "cbc9599",
+ "generatedAt": "2026-07-19 18:35:45",
+ "head": "49c8aab",
  "items": [
   {
-   "number": 104,
-   "title": "Ticket 104: GTFS-Realtime VehiclePositions Poller",
+   "number": 109,
+   "title": "Ticket 109: Operator Feed Observation Window",
    "status": "Not started",
    "state": "Not started",
-   "owner": "unassigned",
+   "owner": "John Fegan",
    "estimate": "M",
    "sprint": "Sprint 1",
-   "path": "104-gtfsrt-vehicle-poller.md",
-   "href": "104-gtfsrt-vehicle-poller.md",
+   "path": "109-operator-feed-observation-window.md",
+   "href": "109-operator-feed-observation-window.md",
    "checked": 0,
-   "total": 9,
-   "summary": "This is the ticket that turns busTracker from a static timetable database into a live tracker: a long-running process that polls the operator's GTFS-Realtime VehiclePositions endpoint and writes what it sees into the store built in 103. It has to run unattended for days without a...",
+   "total": 3,
+   "summary": "Ticket 199 recorded Conditional-Go because the 7-day unattended observation against the operator's live GTFS-RT feeds could not run without Sprint 0 R1 access.",
    "blocks": [
-    105,
-    106,
-    107,
+    1
+   ],
+   "blocked_by": [],
+   "blocked_by_open": [],
+   "last_note_date": "",
+   "note_age_days": null,
+   "stale": false
+  },
+  {
+   "number": 110,
+   "title": "Ticket 110: Staging Host Soak",
+   "status": "Not started",
+   "state": "Not started",
+   "owner": "John Fegan",
+   "estimate": "M",
+   "sprint": "Sprint 1",
+   "path": "110-staging-host-soak.md",
+   "href": "110-staging-host-soak.md",
+   "checked": 0,
+   "total": 4,
+   "summary": "Ticket 108 delivered Compose profiles and runbooks; the 24h supervised soak on a real staging host remains.",
+   "blocks": [
     199
    ],
    "blocked_by": [
-    101,
-    103
+    108
    ],
    "blocked_by_open": [],
-   "last_note_date": "2026-07-19",
-   "note_age_days": null,
-   "stale": false
-  },
-  {
-   "number": 105,
-   "title": "Ticket 105: Feed Validation and Data-Quality Guards",
-   "status": "Not started",
-   "state": "Not started",
-   "owner": "unassigned",
-   "estimate": "L",
-   "sprint": "Sprint 1",
-   "path": "105-feed-validation.md",
-   "href": "105-feed-validation.md",
-   "checked": 0,
-   "total": 9,
-   "summary": "This is the ticket the rest of the programme leans on. `features.md` asks for a \"clear indication when data is delayed, unavailable or based on the timetable\", and the roadmap states plainly that a tracker which silently shows a stale position as live is worse than one that says...",
-   "blocks": [
-    106,
-    199
-   ],
-   "blocked_by": [
-    102,
-    103,
-    104
-   ],
-   "blocked_by_open": [
-    104
-   ],
-   "last_note_date": "2026-07-19",
-   "note_age_days": null,
-   "stale": false
-  },
-  {
-   "number": 106,
-   "title": "Ticket 106: Vehicle Positions Read API",
-   "status": "Not started",
-   "state": "Not started",
-   "owner": "unassigned",
-   "estimate": "M",
-   "sprint": "Sprint 1",
-   "path": "106-positions-read-api.md",
-   "href": "106-positions-read-api.md",
-   "checked": 0,
-   "total": 9,
-   "summary": "Sprint 2's map will poll for vehicle positions every few seconds from every open browser tab, so this endpoint is the single highest-traffic path in the product and the contract that the whole map surface is written against. It is also the last line of defence for data honesty: w...",
-   "blocks": [
-    199
-   ],
-   "blocked_by": [
-    103,
-    104,
-    105
-   ],
-   "blocked_by_open": [
-    104,
-    105
-   ],
-   "last_note_date": "2026-07-19",
-   "note_age_days": null,
-   "stale": false
-  },
-  {
-   "number": 107,
-   "title": "Ticket 107: TripUpdates Ingest and Arrival Estimates",
-   "status": "Not started",
-   "state": "Not started",
-   "owner": "unassigned",
-   "estimate": "L",
-   "sprint": "Sprint 1",
-   "path": "107-tripupdates-arrivals.md",
-   "href": "107-tripupdates-arrivals.md",
-   "checked": 0,
-   "total": 10,
-   "summary": "A dot moving on a map answers \"where is my bus\"; passengers actually want \"when will it get here\". That answer comes from the GTFS-Realtime TripUpdates feed, which carries per-stop arrival and departure predictions and delay values. `features.md` asks for estimated arrival times,...",
-   "blocks": [
-    199
-   ],
-   "blocked_by": [
-    102,
-    104
-   ],
-   "blocked_by_open": [
-    104
-   ],
-   "last_note_date": "2026-07-19",
-   "note_age_days": null,
-   "stale": false
-  },
-  {
-   "number": 108,
-   "title": "Ticket 108: Delivery Platform and Feed Operations",
-   "status": "Not started",
-   "state": "Not started",
-   "owner": "unassigned",
-   "estimate": "L",
-   "sprint": "Sprint 1",
-   "path": "108-delivery-platform-feed-operations.md",
-   "href": "108-delivery-platform-feed-operations.md",
-   "checked": 0,
-   "total": 7,
-   "summary": "Sprint 1 requires seven days of unattended feed observation and Sprint 2 requires production-like telemetry, but the original roadmap deferred deployment and worker supervision until Sprint 8. This ticket implements the minimum safe delivery platform before either gate can consum...",
-   "blocks": [
-    199,
-    299
-   ],
-   "blocked_by": [
-    101,
-    102,
-    104,
-    107
-   ],
-   "blocked_by_open": [
-    104,
-    107
-   ],
-   "last_note_date": "2026-07-19",
-   "note_age_days": null,
-   "stale": false
-  },
-  {
-   "number": 199,
-   "title": "Ticket 199: Sprint 1 Review and Go/No-Go",
-   "status": "Not started",
-   "state": "Not started",
-   "owner": "unassigned",
-   "estimate": "S",
-   "sprint": "Sprint 1",
-   "path": "199-sprint-1-review.md",
-   "href": "199-sprint-1-review.md",
-   "checked": 0,
-   "total": 8,
-   "summary": "Sprint 1 exists to answer one question before we spend a sprint building a map: **is the operator's realtime feed good enough to build a public tracker on?** The roadmap names this as the biggest open risk in the programme, and it names the failure mode too — building the map fir...",
-   "blocks": [
-    201
-   ],
-   "blocked_by": [
-    101,
-    102,
-    103,
-    104,
-    105,
-    106,
-    107,
-    108
-   ],
-   "blocked_by_open": [
-    104,
-    105,
-    106,
-    107,
-    108
-   ],
-   "last_note_date": "2026-07-19",
+   "last_note_date": "",
    "note_age_days": null,
    "stale": false
   },
@@ -205,9 +70,7 @@
     101,
     199
    ],
-   "blocked_by_open": [
-    199
-   ],
+   "blocked_by_open": [],
    "last_note_date": "2026-07-19",
    "note_age_days": null,
    "stale": false
@@ -264,7 +127,6 @@
     201
    ],
    "blocked_by_open": [
-    106,
     201
    ],
    "last_note_date": "2026-07-19",
@@ -294,7 +156,6 @@
     203
    ],
    "blocked_by_open": [
-    107,
     203
    ],
    "last_note_date": "2026-07-19",
@@ -323,7 +184,6 @@
     202
    ],
    "blocked_by_open": [
-    107,
     202
    ],
    "last_note_date": "2026-07-19",
@@ -352,7 +212,6 @@
     203
    ],
    "blocked_by_open": [
-    105,
     203
    ],
    "last_note_date": "2026-07-19",
@@ -445,7 +304,6 @@
     208
    ],
    "blocked_by_open": [
-    108,
     201,
     202,
     203,
@@ -1426,9 +1284,6 @@
     699
    ],
    "blocked_by_open": [
-    105,
-    106,
-    107,
     400,
     402,
     699
@@ -1752,7 +1607,6 @@
     799
    ],
    "blocked_by_open": [
-    105,
     304,
     402,
     503,
@@ -1787,7 +1641,6 @@
     801
    ],
    "blocked_by_open": [
-    106,
     400,
     504,
     601,
@@ -2037,14 +1890,21 @@
    "state_counts": {
     "Not started": 6
    }
+  },
+  {
+   "date": "2026-07-19",
+   "sprint": "Sprint 1",
+   "state_counts": {
+    "Not started": 2
+   }
   }
  ],
  "sprint_summaries": {
   "Sprint 1": {
-   "total": 9,
-   "closed": 3,
+   "total": 11,
+   "closed": 9,
    "gate_number": 199,
-   "gate_state": "Not started"
+   "gate_state": "Closed"
   },
   "Sprint 2": {
    "total": 9,

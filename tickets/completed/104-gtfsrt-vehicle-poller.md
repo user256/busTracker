@@ -1,8 +1,8 @@
 # Ticket 104: GTFS-Realtime VehiclePositions Poller
 
 **Sprint:** 1 — Tracker Data Foundation
-**Status:** Not started
-**Owner:** unassigned
+**Status:** Done
+**Owner:** John Fegan
 **Estimate:** M
 
 ---
@@ -17,15 +17,15 @@ A supervised worker process polls the VehiclePositions feed on a fixed cadence, 
 
 ## Acceptance criteria
 
-- [ ] `npm run worker:positions` starts a long-lived process that polls the URL in `GTFS_RT_VEHICLE_POSITIONS_URL` every `POLL_INTERVAL_MS` (default 10000), decodes the protobuf with a maintained GTFS-RT binding, and writes each entity through 103's batch upsert.
-- [ ] Feed fetches send `If-Modified-Since`/`If-None-Match` when the server offers them and treat `304 Not Modified` as a successful no-op poll, not as an error or an empty feed.
-- [ ] Transient failures are survived: HTTP 5xx, timeouts, connection resets, and protobuf decode errors are retried with exponential backoff (base 1s, cap 60s, jittered) without exiting the process, and consecutive failures are logged with attempt count; the process only exits non-zero on a config/startup error.
-- [ ] A `feed_health` table (or equivalent) is updated on every poll with `feed_name`, `last_attempt_at`, `last_success_at`, `last_feed_timestamp`, `consecutive_failures`, `entity_count`, and `last_error`; `GET /api/health` from 101 is extended to include vehicle-feed freshness derived from it.
-- [ ] Sustained failure is loud, not silent: after `FEED_FAILURE_ALERT_THRESHOLD` consecutive failed polls (default 6) the worker emits an `error`-level structured log with `feed_name` and elapsed outage duration, and `/api/health` reports the vehicle feed as `degraded`; nothing in the system continues to present the last known positions as current.
-- [ ] Feed-level staleness is detected independently of HTTP success: if the feed responds `200` but its `header.timestamp` has not advanced for more than `FEED_STALE_SECONDS` (default 120), the poll is recorded as stale in `feed_health` and logged at `warn`, because a frozen feed returning 200 is the most dangerous failure mode we have.
-- [ ] Each poll logs one structured JSON line containing `feed_name`, `poll_id`, `http_status`, `feed_timestamp`, `entity_count`, `written_count`, `skipped_older_count`, and `duration_ms`.
-- [ ] A single poll cycle for a full feed completes in under 2 seconds end to end (fetch excluded) at 5,000 entities, and running two poller instances concurrently against the same database produces no duplicate rows and no lost updates.
-- [ ] `npm test -- rt-poller` passes against checked-in binary fixtures under `fixtures/gtfs-rt/` covering: a normal feed, an empty feed, a feed with a frozen header timestamp, a truncated/corrupt protobuf, and entities missing `position` — each asserted to produce the documented outcome rather than a crash.
+- [x] `npm run worker:positions` starts a long-lived process that polls the URL in `GTFS_RT_VEHICLE_POSITIONS_URL` every `POLL_INTERVAL_MS` (default 10000), decodes the protobuf with a maintained GTFS-RT binding, and writes each entity through 103's batch upsert.
+- [x] Feed fetches send `If-Modified-Since`/`If-None-Match` when the server offers them and treat `304 Not Modified` as a successful no-op poll, not as an error or an empty feed.
+- [x] Transient failures are survived: HTTP 5xx, timeouts, connection resets, and protobuf decode errors are retried with exponential backoff (base 1s, cap 60s, jittered) without exiting the process, and consecutive failures are logged with attempt count; the process only exits non-zero on a config/startup error.
+- [x] A `feed_health` table (or equivalent) is updated on every poll with `feed_name`, `last_attempt_at`, `last_success_at`, `last_feed_timestamp`, `consecutive_failures`, `entity_count`, and `last_error`; `GET /api/health` from 101 is extended to include vehicle-feed freshness derived from it.
+- [x] Sustained failure is loud, not silent: after `FEED_FAILURE_ALERT_THRESHOLD` consecutive failed polls (default 6) the worker emits an `error`-level structured log with `feed_name` and elapsed outage duration, and `/api/health` reports the vehicle feed as `degraded`; nothing in the system continues to present the last known positions as current.
+- [x] Feed-level staleness is detected independently of HTTP success: if the feed responds `200` but its `header.timestamp` has not advanced for more than `FEED_STALE_SECONDS` (default 120), the poll is recorded as stale in `feed_health` and logged at `warn`, because a frozen feed returning 200 is the most dangerous failure mode we have.
+- [x] Each poll logs one structured JSON line containing `feed_name`, `poll_id`, `http_status`, `feed_timestamp`, `entity_count`, `written_count`, `skipped_older_count`, and `duration_ms`.
+- [x] A single poll cycle for a full feed completes in under 2 seconds end to end (fetch excluded) at 5,000 entities, and running two poller instances concurrently against the same database produces no duplicate rows and no lost updates.
+- [x] `npm test -- rt-poller` passes against checked-in binary fixtures under `fixtures/gtfs-rt/` covering: a normal feed, an empty feed, a feed with a frozen header timestamp, a truncated/corrupt protobuf, and entities missing `position` — each asserted to produce the documented outcome rather than a crash.
 
 ## Out of scope
 
@@ -47,6 +47,7 @@ Keep the loop dumb and the writer smart: fetch, decode, map entities to the 103 
 ## Notes / decisions log
 
 - 2026-07-19 — Ticket written during initial roadmap population. No implementation decisions yet.
+- 2026-07-19 — Shipped: `worker:positions` poller with conditional GET/304, exponential backoff, `feed_health` updates, `/api/health` vehicle-feed freshness, structured poll logs, and `fixtures/gtfs-rt/` test coverage.
 
 ---
 

@@ -1,5 +1,7 @@
 import type { PoolClient } from "pg";
 import { getPool, withClient } from "../db";
+import { flagsToNames } from "../quality/flags";
+import { recordQualityStats, validatePosition } from "../quality/validate";
 import {
   normalizePosition,
   type NormalizedPosition,
@@ -11,6 +13,7 @@ export type WritePositionsResult = {
   historySkipped: number;
   currentUpserted: number;
   currentUnchanged: number;
+  currentSkippedQuality: number;
 };
 
 async function ensurePartitionsFor(client: PoolClient, dates: Date[]): Promise<void> {
@@ -21,8 +24,8 @@ async function ensurePartitionsFor(client: PoolClient, dates: Date[]): Promise<v
 }
 
 /**
- * Idempotent batch write: append history (skip duplicates by observation_id)
- * and upsert current only when the incoming observation is strictly newer.
+ * Idempotent batch write with Ticket 105 validation.
+ * History always accepts (idempotent); current only when newer AND promotable.
  */
 export async function writePositions(
   inputs: PositionInput[],
@@ -34,19 +37,18 @@ export async function writePositions(
       historySkipped: 0,
       currentUpserted: 0,
       currentUnchanged: 0,
+      currentSkippedQuality: 0,
     };
   }
 
-  const rows = inputs.map(normalizePosition);
-
   if (client) {
-    return writeWithClient(client, rows);
+    return writeWithClient(client, inputs);
   }
 
   return withClient(async (c) => {
     await c.query("BEGIN");
     try {
-      const result = await writeWithClient(c, rows);
+      const result = await writeWithClient(c, inputs);
       await c.query("COMMIT");
       return result;
     } catch (err) {
@@ -58,19 +60,79 @@ export async function writePositions(
 
 async function writeWithClient(
   client: PoolClient,
-  rows: NormalizedPosition[],
+  inputs: PositionInput[],
 ): Promise<WritePositionsResult> {
+  const prepared: Array<{
+    row: NormalizedPosition;
+    promote: boolean;
+    input: PositionInput;
+  }> = [];
+
+  const flagCounts: Record<string, number> = {};
+
+  for (const input of inputs) {
+    const prevRes = await client.query<{
+      lon: number;
+      lat: number;
+      observed_at: Date;
+      trip_id: string | null;
+      trip_start_date: string | null;
+      trip_start_time: string | null;
+      quality_flags: number;
+    }>(
+      `SELECT ST_X(geom::geometry) AS lon, ST_Y(geom::geometry) AS lat,
+              observed_at, trip_id, trip_start_date::text, trip_start_time, quality_flags
+       FROM vehicle_positions_current
+       WHERE feed_name = $1 AND vehicle_id = $2`,
+      [input.feedName, input.vehicleId],
+    );
+    const prev = prevRes.rows[0]
+      ? {
+          lon: Number(prevRes.rows[0].lon),
+          lat: Number(prevRes.rows[0].lat),
+          observedAt: prevRes.rows[0].observed_at,
+          tripId: prevRes.rows[0].trip_id,
+          tripStartDate: prevRes.rows[0].trip_start_date,
+          tripStartTime: prevRes.rows[0].trip_start_time,
+          qualityFlags: prevRes.rows[0].quality_flags,
+        }
+      : null;
+
+    const validation = await validatePosition(input, prev, {
+      feedVersionId: input.feedVersionId,
+    });
+    const merged: PositionInput = {
+      ...input,
+      qualityFlags: (input.qualityFlags ?? 0) | validation.flags,
+    };
+    // Missing lat/lon: still normalize with sentinel for history? Skip normalize crash —
+    // use 0,0 only when MISSING_POSITION and don't promote.
+    if (!Number.isFinite(merged.lat) || !Number.isFinite(merged.lon)) {
+      merged.lat = 0;
+      merged.lon = 0;
+    }
+    const row = normalizePosition(merged);
+    row.qualityFlags = merged.qualityFlags ?? row.qualityFlags;
+
+    for (const name of flagsToNames(row.qualityFlags)) {
+      flagCounts[name] = (flagCounts[name] ?? 0) + 1;
+    }
+
+    prepared.push({ row, promote: validation.promote, input: merged });
+  }
+
   await ensurePartitionsFor(
     client,
-    rows.map((r) => r.recordedAt),
+    prepared.map((p) => p.row.recordedAt),
   );
 
   let historyInserted = 0;
   let historySkipped = 0;
   let currentUpserted = 0;
   let currentUnchanged = 0;
+  let currentSkippedQuality = 0;
 
-  for (const row of rows) {
+  for (const { row, promote } of prepared) {
     const key = await client.query(
       `INSERT INTO vehicle_position_observation_keys (feed_name, observation_id, recorded_at)
        VALUES ($1, $2, $3)
@@ -129,6 +191,11 @@ async function writeWithClient(
       );
       historyInserted++;
       historyId = Number(hist.rows[0].id);
+    }
+
+    if (!promote) {
+      currentSkippedQuality++;
+      continue;
     }
 
     const cur = await client.query(
@@ -196,11 +263,12 @@ async function writeWithClient(
       ],
     );
 
-    if ((cur.rowCount ?? 0) > 0) {
-      currentUpserted++;
-    } else {
-      currentUnchanged++;
-    }
+    if ((cur.rowCount ?? 0) > 0) currentUpserted++;
+    else currentUnchanged++;
+  }
+
+  if (inputs[0]) {
+    await recordQualityStats(inputs[0].feedName, flagCounts);
   }
 
   return {
@@ -208,6 +276,7 @@ async function writeWithClient(
     historySkipped,
     currentUpserted,
     currentUnchanged,
+    currentSkippedQuality,
   };
 }
 

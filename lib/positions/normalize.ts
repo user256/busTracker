@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
+import { QUALITY_MISSING_SOURCE_TIMESTAMP } from "../quality/flags";
 
-/** Bit 0 — set when neither entity nor header timestamp was present. */
-export const QUALITY_MISSING_SOURCE_TIMESTAMP = 1 << 0;
+export { QUALITY_MISSING_SOURCE_TIMESTAMP };
 
 export type PositionInput = {
   feedName: string;

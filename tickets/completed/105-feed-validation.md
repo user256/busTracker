@@ -1,8 +1,8 @@
 # Ticket 105: Feed Validation and Data-Quality Guards
 
 **Sprint:** 1 — Tracker Data Foundation
-**Status:** Not started
-**Owner:** unassigned
+**Status:** Done
+**Owner:** John Fegan
 **Estimate:** L
 
 ---
@@ -17,15 +17,15 @@ Every vehicle position carries an explicit, queryable quality classification —
 
 ## Acceptance criteria
 
-- [ ] A validation module `lib/quality/validate.ts` runs inside the 104 write path and returns ingest-stable flags from a documented closed vocabulary: `IMPLAUSIBLE_JUMP`, `IMPLAUSIBLE_SPEED`, `OFF_ROUTE`, `NO_TRIP`, `TRIP_ENDED`, `MISSING_POSITION`, `MISSING_SOURCE_TIMESTAMP`, `DUPLICATE_VEHICLE_TRIP`; those flags are persisted, while mutually exclusive `FRESH`/`STALE`/`VERY_STALE` state is derived only at read/report time from the authoritative observation timestamp.
-- [ ] Staleness is per-vehicle and threshold-driven, not inherited from feed health: a position is `STALE` when `now() - feed_timestamp` exceeds `QUALITY_STALE_SECONDS` (default 60) and `VERY_STALE` beyond `QUALITY_VERY_STALE_SECONDS` (default 300); staleness is recomputed at read time, not frozen at write time, so a vehicle that stops reporting degrades on its own without any new feed message arriving.
-- [ ] Implausible movement is detected against the previous accepted position: speed and jump rules apply only inside a configurable comparison horizon; after a longer reporting gap the candidate is quarantined until two consecutive mutually plausible reports establish a new baseline. A bad point is written to history but not promoted, and tests prove one glitch is rejected while a vehicle legitimately reappearing kilometres away recovers instead of remaining permanently pinned to its old position.
-- [ ] Off-route detection uses the 102 shape geometry: a position whose `trip_id` resolves to a shape is `OFF_ROUTE` when `ST_Distance(geom, shape_geom)` exceeds `QUALITY_OFF_ROUTE_METRES` (default 150), evaluated with a PostGIS index-assisted query; positions with no resolvable trip or shape get `NO_TRIP` instead of being silently treated as on-route.
-- [ ] Vehicles running short, diverted, or re-assigned are handled without producing permanent false alarms: `OFF_ROUTE` must persist for `QUALITY_OFF_ROUTE_CONSECUTIVE` reports (default 3) before it is exposed to consumers, and a vehicle reporting a `trip_id` whose scheduled end time is more than `QUALITY_TRIP_ENDED_MINUTES` (default 30) in the past is flagged `TRIP_ENDED` rather than being drawn as an in-service bus on that route.
-- [ ] There is exactly one place that decides what is servable: a helper `lib/quality/isServable.ts` (and a matching SQL view `vehicle_positions_servable`) encodes the rule that consumers must use, and 106 reads through it — a reviewer can grep for direct selects against `vehicle_positions_current` in API code and find none.
-- [ ] Quality outcomes are counted, not just tagged: a `feed_quality_stats` table accumulates per-hour counts per flag, and `npm run quality:report -- --hours 24` prints a table of total positions, distinct vehicles, and the percentage carrying each flag over the window. This report is the primary input to 199.
-- [ ] `npm test -- quality` passes with fixture-driven unit tests covering, at minimum: fresh/stale/very-stale read-time derivation, a 5 km jump in 20 seconds rejected, recovery after a 10-minute outage and two plausible reports, off-route hysteresis, trip-ended handling, missing position/source timestamp, and duplicate claims against the same full trip-instance key.
-- [ ] Validation is cheap enough to stay inline: validating a 5,000-entity batch adds under 500 ms p95 to a poll cycle, demonstrated by `scripts/bench-validate.ts`; all thresholds above are configuration with the documented defaults, changeable without a code edit, and their current values are printed at worker startup.
+- [x] A validation module `lib/quality/validate.ts` runs inside the 104 write path and returns ingest-stable flags from a documented closed vocabulary: `IMPLAUSIBLE_JUMP`, `IMPLAUSIBLE_SPEED`, `OFF_ROUTE`, `NO_TRIP`, `TRIP_ENDED`, `MISSING_POSITION`, `MISSING_SOURCE_TIMESTAMP`, `DUPLICATE_VEHICLE_TRIP`; those flags are persisted, while mutually exclusive `FRESH`/`STALE`/`VERY_STALE` state is derived only at read/report time from the authoritative observation timestamp.
+- [x] Staleness is per-vehicle and threshold-driven, not inherited from feed health: a position is `STALE` when `now() - feed_timestamp` exceeds `QUALITY_STALE_SECONDS` (default 60) and `VERY_STALE` beyond `QUALITY_VERY_STALE_SECONDS` (default 300); staleness is recomputed at read time, not frozen at write time, so a vehicle that stops reporting degrades on its own without any new feed message arriving.
+- [x] Implausible movement is detected against the previous accepted position: speed and jump rules apply only inside a configurable comparison horizon; after a longer reporting gap the candidate is quarantined until two consecutive mutually plausible reports establish a new baseline. A bad point is written to history but not promoted, and tests prove one glitch is rejected while a vehicle legitimately reappearing kilometres away recovers instead of remaining permanently pinned to its old position.
+- [x] Off-route detection uses the 102 shape geometry: a position whose `trip_id` resolves to a shape is `OFF_ROUTE` when `ST_Distance(geom, shape_geom)` exceeds `QUALITY_OFF_ROUTE_METRES` (default 150), evaluated with a PostGIS index-assisted query; positions with no resolvable trip or shape get `NO_TRIP` instead of being silently treated as on-route.
+- [x] Vehicles running short, diverted, or re-assigned are handled without producing permanent false alarms: `OFF_ROUTE` must persist for `QUALITY_OFF_ROUTE_CONSECUTIVE` reports (default 3) before it is exposed to consumers, and a vehicle reporting a `trip_id` whose scheduled end time is more than `QUALITY_TRIP_ENDED_MINUTES` (default 30) in the past is flagged `TRIP_ENDED` rather than being drawn as an in-service bus on that route.
+- [x] There is exactly one place that decides what is servable: a helper `lib/quality/isServable.ts` (and a matching SQL view `vehicle_positions_servable`) encodes the rule that consumers must use, and 106 reads through it — a reviewer can grep for direct selects against `vehicle_positions_current` in API code and find none.
+- [x] Quality outcomes are counted, not just tagged: a `feed_quality_stats` table accumulates per-hour counts per flag, and `npm run quality:report -- --hours 24` prints a table of total positions, distinct vehicles, and the percentage carrying each flag over the window. This report is the primary input to 199.
+- [x] `npm test -- quality` passes with fixture-driven unit tests covering, at minimum: fresh/stale/very-stale read-time derivation, a 5 km jump in 20 seconds rejected, recovery after a 10-minute outage and two plausible reports, off-route hysteresis, trip-ended handling, missing position/source timestamp, and duplicate claims against the same full trip-instance key.
+- [x] Validation is cheap enough to stay inline: validating a 5,000-entity batch adds under 500 ms p95 to a poll cycle, demonstrated by `scripts/bench-validate.ts`; all thresholds above are configuration with the documented defaults, changeable without a code edit, and their current values are printed at worker startup.
 
 ## Out of scope
 
@@ -48,6 +48,7 @@ Compute flags in two layers. Ingest-time flags (jump, speed, off-route, trip-end
 ## Notes / decisions log
 
 - 2026-07-19 — Ticket written during initial roadmap population. No implementation decisions yet.
+- 2026-07-19 — Shipped: ingest validation flags, read-time staleness, `isServable` + `vehicle_positions_servable`, `feed_quality_stats`, `quality:report`, and bench-validate within latency budget.
 
 ---
 

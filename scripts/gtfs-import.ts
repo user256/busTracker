@@ -639,7 +639,8 @@ export async function importGtfs(options: {
 
     await client.query(
       `UPDATE feed_versions SET status = 'superseded'
-       WHERE status = 'active'`,
+       WHERE status = 'active' AND id <> $1`,
+      [feedVersionId],
     );
     await client.query(
       `UPDATE feed_versions SET

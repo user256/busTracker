@@ -1,8 +1,8 @@
 # Ticket 106: Vehicle Positions Read API
 
 **Sprint:** 1 — Tracker Data Foundation
-**Status:** Not started
-**Owner:** unassigned
+**Status:** Done
+**Owner:** John Fegan
 **Estimate:** M
 
 ---
@@ -17,15 +17,15 @@ An HTTP endpoint returns current, quality-filtered vehicle positions for a viewp
 
 ## Acceptance criteria
 
-- [ ] `GET /api/v1/vehicles?bbox=minLon,minLat,maxLon,maxLat` returns servable vehicles inside the bounding box; `GET /api/v1/vehicles?route_id=<id>` returns them for one route; supplying neither returns `400` with a machine-readable error code, and supplying both is accepted and intersected.
-- [ ] The response body is `{"generated_at": "<ISO8601>", "feed_timestamp": "<ISO8601|null>", "feed_status": "live|degraded|down", "vehicles": [...]}`, where each vehicle carries `vehicle_id`, `route_id`, `trip_id`, `lat`, `lon`, `bearing`, `speed_mps`, `occupancy_status`, `headsign`, `feed_timestamp`, `age_seconds`, and `quality: ["FRESH"|"STALE"|...]` — a response can never omit the age of a position.
-- [ ] The endpoint reads exclusively through 105's `vehicle_positions_servable` view / `isServable` helper: positions flagged `IMPLAUSIBLE_JUMP`, `MISSING_POSITION`, or `VERY_STALE` are never returned, and `STALE` positions are returned but plainly marked so, never silently as fresh.
-- [ ] `feed_status` is derived from the `feed_health` table written by 104: `live` when the last successful poll is within 60 s, `degraded` between 60 s and 300 s, `down` beyond that or when the poller has never succeeded — and it is `down`/`degraded` even when the `vehicles` array is non-empty from cached rows.
-- [ ] A response schema is published at `docs/api/vehicles.md` and enforced in tests: `npm test -- positions-api` asserts every documented field's presence and type against a seeded database, plus the `400` cases and an empty-viewport `200` with `"vehicles": []`.
-- [ ] Latency budget is met and measured: p95 under 150 ms server-side for a city-sized bbox with 5,000 current vehicles, verified by `scripts/bench-api.ts` which prints p50/p95/p99 and exits non-zero if p95 exceeds the budget.
-- [ ] Responses set `Cache-Control: public, max-age=5, stale-while-revalidate=10` and a strong `ETag`; a conditional request with a matching `If-None-Match` returns `304`, so the Sprint 2 refresh loop is cheap.
-- [ ] The bbox parameter is validated and bounded: malformed coordinates return `400`, and a bbox whose area exceeds `MAX_BBOX_SQ_KM` (default 50,000) returns `400` with code `BBOX_TOO_LARGE` rather than attempting a full-table scan.
-- [ ] Coordinates are rounded to 5 decimal places (~1 m) in the response payload, and a comment or doc note records that this is a deliberate payload-size and privacy choice rather than a precision bug.
+- [x] `GET /api/v1/vehicles?bbox=minLon,minLat,maxLon,maxLat` returns servable vehicles inside the bounding box; `GET /api/v1/vehicles?route_id=<id>` returns them for one route; supplying neither returns `400` with a machine-readable error code, and supplying both is accepted and intersected.
+- [x] The response body is `{"generated_at": "<ISO8601>", "feed_timestamp": "<ISO8601|null>", "feed_status": "live|degraded|down", "vehicles": [...]}`, where each vehicle carries `vehicle_id`, `route_id`, `trip_id`, `lat`, `lon`, `bearing`, `speed_mps`, `occupancy_status`, `headsign`, `feed_timestamp`, `age_seconds`, and `quality: ["FRESH"|"STALE"|...]` — a response can never omit the age of a position.
+- [x] The endpoint reads exclusively through 105's `vehicle_positions_servable` view / `isServable` helper: positions flagged `IMPLAUSIBLE_JUMP`, `MISSING_POSITION`, or `VERY_STALE` are never returned, and `STALE` positions are returned but plainly marked so, never silently as fresh.
+- [x] `feed_status` is derived from the `feed_health` table written by 104: `live` when the last successful poll is within 60 s, `degraded` between 60 s and 300 s, `down` beyond that or when the poller has never succeeded — and it is `down`/`degraded` even when the `vehicles` array is non-empty from cached rows.
+- [x] A response schema is published at `docs/api/vehicles.md` and enforced in tests: `npm test -- positions-api` asserts every documented field's presence and type against a seeded database, plus the `400` cases and an empty-viewport `200` with `"vehicles": []`.
+- [x] Latency budget is met and measured: p95 under 150 ms server-side for a city-sized bbox with 5,000 current vehicles, verified by `scripts/bench-api.ts` which prints p50/p95/p99 and exits non-zero if p95 exceeds the budget.
+- [x] Responses set `Cache-Control: public, max-age=5, stale-while-revalidate=10` and a strong `ETag`; a conditional request with a matching `If-None-Match` returns `304`, so the Sprint 2 refresh loop is cheap.
+- [x] The bbox parameter is validated and bounded: malformed coordinates return `400`, and a bbox whose area exceeds `MAX_BBOX_SQ_KM` (default 50,000) returns `400` with code `BBOX_TOO_LARGE` rather than attempting a full-table scan.
+- [x] Coordinates are rounded to 5 decimal places (~1 m) in the response payload, and a comment or doc note records that this is a deliberate payload-size and privacy choice rather than a precision bug.
 
 ## Out of scope
 
@@ -48,6 +48,7 @@ One SQL query per request against `vehicle_positions_servable` with an `ST_Inter
 ## Notes / decisions log
 
 - 2026-07-19 — Ticket written during initial roadmap population. No implementation decisions yet.
+- 2026-07-19 — Shipped: `GET /api/v1/vehicles` bbox/route contract with freshness envelope, servable-only reads, ETag/304, `docs/api/vehicles.md`, and bench-api latency gate.
 
 ---
 

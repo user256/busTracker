@@ -18,5 +18,69 @@ services:
       timeout: 5s
       retries: 10
 
+  # Staging/production template — build with Dockerfile when provisioned (Ticket 108).
+  # Locally prefer `npm run dev` / `npm run worker:positions` against the db service.
+  web:
+    profiles: ["stack"]
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://bustracker:bustracker@db:5432/bustracker
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "npm run db:migrate && npm run start"]
+
+  worker-positions:
+    profiles: ["stack"]
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://bustracker:bustracker@db:5432/bustracker
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npm", "run", "worker:positions"]
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f worker:positions >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  worker-tripupdates:
+    profiles: ["stack"]
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://bustracker:bustracker@db:5432/bustracker
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npm", "run", "worker:tripupdates"]
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f worker:tripupdates >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  gtfs-static-refresh:
+    profiles: ["stack"]
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://bustracker:bustracker@db:5432/bustracker
+      GTFS_STATIC_URL: ${GTFS_STATIC_URL:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    # Daily refresh; hash skip is built into gtfs:import
+    entrypoint: ["sh", "-c", "while true; do if [ -n \"$$GTFS_STATIC_URL\" ]; then npm run gtfs:import -- --source \"$$GTFS_STATIC_URL\" || echo import_failed; fi; sleep 86400; done"]
+
 volumes:
   bustracker_pgdata:

@@ -14,12 +14,18 @@
     "gtfs:import": "tsx scripts/gtfs-import.ts",
     "db:retention": "tsx scripts/db-retention.ts",
     "seed:positions": "tsx scripts/seed-positions.ts",
-    "bench:viewport": "tsx scripts/bench-viewport.ts"
+    "bench:viewport": "tsx scripts/bench-viewport.ts",
+    "worker:positions": "tsx workers/positions.ts",
+    "worker:tripupdates": "tsx workers/tripupdates.ts",
+    "quality:report": "tsx scripts/quality-report.ts",
+    "bench:validate": "tsx scripts/bench-validate.ts",
+    "bench:api": "tsx scripts/bench-api.ts"
   },
   "dependencies": {
     "adm-zip": "^0.6.0",
     "csv-parse": "^7.0.1",
     "dotenv": "^17.4.2",
+    "gtfs-realtime-bindings": "^1.1.1",
     "next": "^15.5.20",
     "pg": "^8.22.0",
     "react": "^19.0.0",
