@@ -2,8 +2,8 @@ import type { StyleSpecification } from "maplibre-gl";
 
 /**
  * No-key demo basemap (Ticket 201 follow-up).
- * Used when STADIA_API_KEY is unset so /track keeps working while awaiting Stadia access.
- * Not for production Stage C — swap in Stadia via the origin proxy once the key lands.
+ * Raster tiles are fetched via same-origin `/api/map/raster/...` so ad-blockers /
+ * CSP cannot blank the map the way third-party Carto URLs sometimes do.
  */
 export function buildDummyBasemapStyle(): StyleSpecification {
   return {
@@ -12,22 +12,16 @@ export function buildDummyBasemapStyle(): StyleSpecification {
     metadata: {
       "bustracker:basemap": "dummy",
       "bustracker:note":
-        "Demo raster basemap (Carto Positron). Replace with Stadia when STADIA_API_KEY is set.",
+        "Demo raster basemap (OSM via origin proxy). Replace with Stadia when STADIA_API_KEY is set.",
     },
-    // Free MapLibre demo glyphs so symbol/text layers (vehicles) still render.
     glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
     sources: {
       "dummy-raster": {
         type: "raster",
-        // Non-retina tiles with tileSize 256 — @2x + tileSize 256 paints blank in MapLibre.
-        tiles: [
-          "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-          "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-          "https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-        ],
+        tiles: ["/api/map/raster/{z}/{x}/{y}"],
         tileSize: 256,
-        attribution: "© OpenStreetMap © CARTO",
-        maxzoom: 20,
+        attribution: "© OpenStreetMap contributors",
+        maxzoom: 19,
       },
     },
     layers: [
@@ -41,16 +35,16 @@ export function buildDummyBasemapStyle(): StyleSpecification {
         type: "raster",
         source: "dummy-raster",
         paint: {
-          // Soften contrast so route green stays salient (ember.to-ish)
-          "raster-saturation": -0.35,
-          "raster-contrast": -0.15,
-          "raster-opacity": 0.92,
+          "raster-saturation": -0.25,
+          "raster-contrast": -0.1,
+          "raster-opacity": 1,
         },
       },
     ],
   };
 }
 
-export const DUMMY_BASEMAP_ATTRIBUTION = "© OpenStreetMap © CARTO (demo basemap)";
+export const DUMMY_BASEMAP_ATTRIBUTION =
+  "© OpenStreetMap contributors (demo basemap)";
 export const STADIA_BASEMAP_ATTRIBUTION =
   "© Stadia Maps © OpenMapTiles © OpenStreetMap";

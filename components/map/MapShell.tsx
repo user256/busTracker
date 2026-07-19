@@ -80,8 +80,17 @@ function MapShellInner({
         mapRef.current = map;
         setMap(map);
 
+        const forceResize = () => {
+          map.resize();
+        };
+        // Container often has 0 height on first paint in flex layouts.
+        requestAnimationFrame(forceResize);
+        setTimeout(forceResize, 50);
+        setTimeout(forceResize, 250);
+
         map.on("load", () => {
           if (cancelled) return;
+          forceResize();
           for (const id of SLOT_LAYER_IDS) {
             const sourceId = `${SLOT_SOURCE_PREFIX}${id}`;
             if (!map.getSource(sourceId)) {
