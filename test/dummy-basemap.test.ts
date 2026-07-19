@@ -9,7 +9,7 @@ describe("dummyBasemap", () => {
     const json = JSON.stringify(style);
     assert.equal(json.includes("stadiamaps"), false);
     assert.equal(json.includes("api_key"), false);
-    assert.match(json, /\/api\/map\/raster\/\{z\}\/\{x\}\/\{y\}/);
+    assert.match(json, /basemaps\.cartocdn\.com\/light_all/);
     assert.equal(
       (style.metadata as { "bustracker:basemap"?: string })?.[
         "bustracker:basemap"

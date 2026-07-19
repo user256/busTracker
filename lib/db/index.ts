@@ -7,8 +7,13 @@ export function getPool(): Pool {
   if (!pool) {
     pool = new Pool({
       connectionString: getEnv().DATABASE_URL,
-      connectionTimeoutMillis: 2000,
-      query_timeout: 2000,
+      max: 10,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 5_000,
+    });
+    // Avoid the previous 2s query_timeout that killed geometry under load.
+    pool.on("connect", (client) => {
+      void client.query("SET statement_timeout TO 15000");
     });
   }
   return pool;

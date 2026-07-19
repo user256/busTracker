@@ -1,9 +1,9 @@
 import type { StyleSpecification } from "maplibre-gl";
 
 /**
- * No-key demo basemap (Ticket 201 follow-up).
- * Raster tiles are fetched via same-origin `/api/map/raster/...` so ad-blockers /
- * CSP cannot blank the map the way third-party Carto URLs sometimes do.
+ * No-key demo basemap. Loads Carto tiles **directly in the browser** (CORS OK).
+ * Do not proxy through Next — under load the origin proxy starves the event loop
+ * and takes down /api/v1/vehicles + geometry with it.
  */
 export function buildDummyBasemapStyle(): StyleSpecification {
   return {
@@ -12,16 +12,20 @@ export function buildDummyBasemapStyle(): StyleSpecification {
     metadata: {
       "bustracker:basemap": "dummy",
       "bustracker:note":
-        "Demo raster basemap (OSM via origin proxy). Replace with Stadia when STADIA_API_KEY is set.",
+        "Demo Carto Positron basemap (browser-direct). Replace with Stadia when STADIA_API_KEY is set.",
     },
     glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
     sources: {
       "dummy-raster": {
         type: "raster",
-        tiles: ["/api/map/raster/{z}/{x}/{y}"],
+        tiles: [
+          "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+          "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+          "https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+        ],
         tileSize: 256,
-        attribution: "© OpenStreetMap contributors",
-        maxzoom: 19,
+        attribution: "© OpenStreetMap © CARTO",
+        maxzoom: 20,
       },
     },
     layers: [
@@ -45,6 +49,6 @@ export function buildDummyBasemapStyle(): StyleSpecification {
 }
 
 export const DUMMY_BASEMAP_ATTRIBUTION =
-  "© OpenStreetMap contributors (demo basemap)";
+  "© OpenStreetMap © CARTO (demo basemap)";
 export const STADIA_BASEMAP_ATTRIBUTION =
   "© Stadia Maps © OpenMapTiles © OpenStreetMap";
