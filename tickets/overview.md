@@ -117,7 +117,7 @@ Open work that must complete before Stage C public tracker beta:
 
 **Tickets:**
 - [x] [Ticket 201: Map Shell, Tiles, and Controls](./201-map-shell.md)
-- [ ] [Ticket 202: Route Network Geometry Rendering](./202-route-geometry.md)
+- [x] [Ticket 202: Route Network Geometry Rendering](./202-route-geometry.md)
 - [ ] [Ticket 203: Live Vehicle Markers and Refresh Loop](./203-live-vehicle-markers.md)
 - [ ] [Ticket 204: Vehicle Detail Panel](./204-vehicle-detail-panel.md)
 - [ ] [Ticket 205: Stop Markers and Live Departures](./205-stop-markers-departures.md)

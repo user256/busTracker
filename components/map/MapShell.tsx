@@ -5,6 +5,7 @@ import type { Map as MapLibreMap, StyleSpecification } from "maplibre-gl";
 import { LiveBadge, type LiveBadgeState } from "./LiveBadge";
 import { MapControls } from "./MapControls";
 import { MapProvider, useMapSetter } from "./MapContext";
+import { RouteNetwork } from "./RouteNetwork";
 import { SLOT_LAYER_IDS, SLOT_SOURCE_PREFIX } from "./layerOrder";
 import styles from "./MapShell.module.css";
 
@@ -153,6 +154,7 @@ function MapShellInner({
       <div className={styles.topRight}>
         <MapControls />
       </div>
+      <RouteNetwork />
       <div className={styles.attribution}>
         © Stadia Maps © OpenMapTiles © OpenStreetMap
       </div>
