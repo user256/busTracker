@@ -137,7 +137,7 @@ function ensureVehicleLayer(map: MapLibreMap): void {
             12,
             11,
           ],
-          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+          "text-font": ["Noto Sans Regular"],
           "text-allow-overlap": true,
           "text-ignore-placement": true,
           "text-rotation-alignment": "viewport",
