@@ -10,9 +10,12 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx --env-file=.env scripts/db-migrate.ts",
     "worker:dev": "tsx workers/noop.ts",
-    "test": "tsx --test test/*.test.ts"
+    "test": "tsx --test test/*.test.ts",
+    "gtfs:import": "tsx scripts/gtfs-import.ts"
   },
   "dependencies": {
+    "adm-zip": "^0.6.0",
+    "csv-parse": "^7.0.1",
     "dotenv": "^17.4.2",
     "next": "^15.5.20",
     "pg": "^8.22.0",
@@ -23,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/adm-zip": "^0.5.8",
     "@types/node": "^20.19.43",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",

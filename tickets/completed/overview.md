@@ -25,4 +25,5 @@
 
 **Tickets:**
 - [x] [Ticket 101: Architecture Decision Record and Project Skeleton](./101-architecture-and-skeleton.md)
+- [x] [Ticket 102: GTFS Static Ingest and Schema](./102-gtfs-static-ingest.md)
 

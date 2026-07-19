@@ -20,7 +20,14 @@ cp .env.example .env          # DATABASE_URL already points at local Compose
 docker compose up -d db       # Postgres 16 + PostGIS on localhost:55432
 npm install
 npm run db:migrate            # apply db/migrations/*.sql
+npm run gtfs:import -- --source fixtures/gtfs-static-mini.zip
 npm run dev                   # http://localhost:3000
+```
+
+GTFS static re-import (idempotent by SHA; `--force` to reload):
+
+```bash
+npm run gtfs:import -- --source /path/or/url/to/gtfs.zip
 ```
 
 Check health:
